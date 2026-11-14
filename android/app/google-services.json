@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "1093442203452",
+    "project_id": "todolist-4f9ef",
+    "storage_bucket": "todolist-4f9ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093442203452:android:5e1781216efa2fd295b839",
+        "android_client_info": {
+          "package_name": "com.terablack.mytodo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1093442203452-dugdnbs7ak4tb0m15k7ckobb4vd3o00q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.terablack.mytodo",
+            "certificate_hash": "88333450e2c1f53aa9fdd0b28f61fd574de97997"
+          }
+        },
+        {
+          "client_id": "1093442203452-j2k29nrlkmg34jqb1jgkdp11u0a7va9b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.terablack.mytodo",
+            "certificate_hash": "891efe8fedb3c6c1cc502706248656504d23ee04"
+          }
+        },
+        {
+          "client_id": "1093442203452-m3i94h6r7il9pka0b6hd2cas7vknqj71.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.terablack.mytodo",
+            "certificate_hash": "0acfbcc8edfe318fd775dd59fb0ffbd652e52af3"
+          }
+        },
+        {
+          "client_id": "1093442203452-3j9285td4gi3lq4fnq9aj8gugv4qb3ul.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlY54zJa5f2clcDLD6mNfa18tIBajQ_7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1093442203452-3j9285td4gi3lq4fnq9aj8gugv4qb3ul.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1093442203452-b393qfctq57f16kobf920g6gt145icro.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mytodo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

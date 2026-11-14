@@ -1,0 +1,146 @@
+// ⚠️ 템플릿 파일입니다. firestore.rules 로 복사한 뒤 admin@example.com 을 운영자 이메일로 바꾸세요.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── 헬퍼 함수 ────────────────────────────────────────────────────────
+
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isLoggedIn() && request.auth.uid == uid;
+    }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isLoggedIn() && userRole() == 'ADMIN';
+    }
+
+    // 백업·복원 접근 가능 등급: BETA 또는 ADMIN (앱의 canSync 와 동일)
+    function canSync() {
+      return isLoggedIn() && (userRole() == 'BETA' || userRole() == 'ADMIN');
+    }
+
+    // ── 공지사항 (notices) ───────────────────────────────────────────────
+    // 누구나 읽기 가능, ADMIN 만 쓰기 가능
+    match /notices/{docId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── 업데이트 내역 (updates) ──────────────────────────────────────────
+    // 누구나 읽기 가능, ADMIN 만 쓰기 가능
+    match /updates/{docId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── 사용자 프로필 (users) ────────────────────────────────────────────
+    // 본인 읽기/쓰기(단, 임의 권한 상승 및 비활성화 해제 불가), ADMIN 은 전체 읽기/쓰기 가능
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isAdmin() || (
+        isOwner(uid) &&
+        (
+          request.resource.data.role == 'NORMAL' ||
+          (request.auth.token.email == 'admin@example.com' && request.resource.data.role == 'ADMIN')
+        )
+      );
+      allow update: if isAdmin() || (
+        isOwner(uid) &&
+        resource.data.get('disabled', false) == false &&
+        request.resource.data.get('disabled', false) == false &&
+        (
+          request.resource.data.role == resource.data.role ||
+          request.resource.data.role == 'NORMAL' ||
+          (request.auth.token.email == 'admin@example.com' && request.resource.data.role == 'ADMIN')
+        )
+      );
+      allow delete: if isOwner(uid) || isAdmin();
+    }
+
+    // ── 할 일 동기화 (todos/{userId}/items/*) ───────────────────────────
+    // BETA·ADMIN 본인만 접근 가능 (회원 탈퇴 시 본인 데이터 삭제 허용)
+    match /todos/{userId} {
+      allow delete: if isOwner(userId) || isAdmin();
+      match /items/{todoId} {
+        allow read, write: if isOwner(userId) && canSync();
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // ── 기분 한줄 동기화 (moods/{userId}/items/*) ───────────────────────
+    // BETA·ADMIN 본인만 접근 가능 (회원 탈퇴 시 본인 데이터 삭제 허용)
+    match /moods/{userId} {
+      allow delete: if isOwner(userId) || isAdmin();
+      match /items/{moodId} {
+        allow read, write: if isOwner(userId) && canSync();
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // ── 가계부 동기화 (ledger/{userId}/items/*) ─────────────────────────
+    // BETA·ADMIN 본인만 접근 가능 (회원 탈퇴 시 본인 데이터 삭제 허용)
+    match /ledger/{userId} {
+      allow delete: if isOwner(userId) || isAdmin();
+      match /items/{ledgerId} {
+        allow read, write: if isOwner(userId) && canSync();
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // ── Pro 등급 신청 (pro_requests) ────────────────────────────────────
+    match /pro_requests/{requestId} {
+      allow create: if isLoggedIn()
+        && request.resource.data.uid == request.auth.uid;
+      allow read: if isAdmin()
+        || (isLoggedIn() && resource.data.uid == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── 보호자 동의 (parent_consents) ───────────────────────────────────
+    // - 로그인한 사용자: 본인 문서 생성/재신청/읽기/탈퇴 시 삭제
+    // - ADMIN: 전체 읽기 + 상태 업데이트 (승인/거절)
+    match /parent_consents/{uid} {
+      allow create, update: if isOwner(uid) && request.resource.data.status == 'pending';
+      allow read: if isOwner(uid) || isAdmin();
+      allow update, delete: if isAdmin();
+      allow delete: if isOwner(uid);
+    }
+
+    // ── 휴대폰 번호 중복 방지 (phone_registry) ──────────────────────────
+    // - 로그인한 사용자: 존재 여부 확인(read)
+    // - 본인 uid: 등록/삭제 가능
+    // - ADMIN: 모든 항목 읽기/삭제 가능
+    match /phone_registry/{phone} {
+      allow read: if isLoggedIn();
+      allow create, update: if isLoggedIn()
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if isLoggedIn()
+        && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // ── 앱 내 알림 (notifications) ──────────────────────────────────────
+    // - 본인 알림(targetId == uid): 읽기·업데이트 가능
+    // - 관리자 알림(targetId == 'ADMIN'): ADMIN 만 읽기·업데이트 가능
+    // - 알림 생성: 로그인한 사용자 누구나 허용 (신청/승인 흐름에서 작성)
+    match /notifications/{notifId} {
+      allow read: if isLoggedIn() && (
+        resource.data.targetId == request.auth.uid ||
+        (resource.data.targetId == 'ADMIN' && isAdmin())
+      );
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn() && (
+        resource.data.targetId == request.auth.uid ||
+        (resource.data.targetId == 'ADMIN' && isAdmin())
+      );
+      allow delete: if isAdmin();
+    }
+  }
+}
