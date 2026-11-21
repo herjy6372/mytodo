@@ -120,14 +120,6 @@ class ManualScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           _FeatureCard(
-            icon: Icons.wb_sunny_rounded,
-            color: const Color(0xFFFFA94D),
-            title: '날씨 표시',
-            description: '홈 화면에 현재 위치의 날씨가 표시됩니다. '
-                '위치 권한을 허용해야 정상적으로 동작하며, '
-                '날씨 데이터는 Open-Meteo 서비스를 통해 무료로 제공됩니다.',
-          ),
-          _FeatureCard(
             icon: Icons.notifications_active_outlined,
             color: const Color(0xFFFF6B81),
             title: '할 일 알림',

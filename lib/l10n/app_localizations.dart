@@ -94,15 +94,6 @@ class AppLocalizations {
     'Đăng nhập để sử dụng các tính năng ứng dụng.',
   );
 
-  String get weatherUnavailable => _t(
-    '날씨 정보를 불러올 수 없습니다.',
-    'Unable to load weather info.',
-    '天気情報を読み込めません。',
-    'Hindi ma-load ang impormasyon ng panahon.',
-    'Không thể tải thông tin thời tiết.',
-  );
-  String get weatherTapRetry => _t('탭하여 다시 시도', 'Tap to retry', 'タップして再試行', 'I-tap para subukan muli', 'Nhấn để thử lại');
-
   // ── 설정 화면 ────────────────────────────────────────────────────────────
 
   String get settingsTitle => _t('설정', 'Settings', '設定', 'Mga Setting', 'Cài đặt');

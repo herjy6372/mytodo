@@ -14,7 +14,6 @@ import '../models/parent_consent.dart';
 import '../models/user_profile.dart';
 import '../models/todo.dart';
 import '../services/permission_service.dart';
-import '../services/weather_service.dart';
 import '../widgets/rounded_menu_button.dart';
 import 'calendar_screen.dart';
 import 'graph_screen.dart';
@@ -39,7 +38,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _repo = TodoRepository.instance;
-  final _weather = WeatherService.instance;
   final _auth = AuthRepository.instance;
   final _profile = ProfileRepository.instance;
 
@@ -52,7 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _wasLoggedIn = _auth.isLoggedIn;
     _repo.addListener(_onChange);
-    _weather.addListener(_onChange);
     _auth.addListener(_onAuthStateChanged);
     _profile.addListener(_onChange);
 
@@ -69,7 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _repo.removeListener(_onChange);
-    _weather.removeListener(_onChange);
     _auth.removeListener(_onAuthStateChanged);
     _profile.removeListener(_onChange);
     super.dispose();
@@ -457,9 +453,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // 날씨 카드
-                _WeatherCard(weather: _weather),
-                const SizedBox(height: 14),
                 // (1) 요약 카드 — 오늘/이번주/이번달
                 _SummaryCard(
                   todayCount: todayCount,
@@ -560,333 +553,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-
-// ─── 날씨 카드 ────────────────────────────────────────────────────────────────
-
-/// 날씨 카드 — 요약 카드 위에 표시.
-class _WeatherCard extends StatelessWidget {
-  const _WeatherCard({required this.weather});
-  final WeatherService weather;
-
-  @override
-  Widget build(BuildContext context) {
-    final w = weather.weather;
-
-    // 로딩 중
-    if (weather.loading && w == null) {
-      return Container(
-        height: 88,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF74B9FF), Color(0xFFA29BFE)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: const Center(
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      );
-    }
-
-    // 권한 거부 / 오류
-    if (w == null) {
-      return GestureDetector(
-        onTap: () => WeatherService.instance.load(),
-        child: Container(
-          height: 88,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          ),
-          child: Row(
-            children: [
-              const Text('🌍', style: TextStyle(fontSize: 28)),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context).weatherUnavailable,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      AppLocalizations.of(context).weatherTapRetry,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final cond    = w.condition;
-    final isWindy = w.windspeed >= 15;
-    final now     = DateTime.now();
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          colors: cond.gradientColors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: cond.gradientColors.first.withValues(alpha: 0.35),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ── 현재 날씨 행 ─────────────────────────────────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(cond.emoji, style: const TextStyle(fontSize: 44)),
-              const SizedBox(width: 16),
-              // 온도 + 날씨명
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${w.temperature.toStringAsFixed(1)}°C',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        height: 1.1,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            cond.label,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (isWindy) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.25),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text('💨',
-                                    style: TextStyle(fontSize: 11)),
-                                const SizedBox(width: 3),
-                                Text(
-                                  '${w.windspeed.toStringAsFixed(0)}km/h',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // 위치 + 출처
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (w.locationName.isNotEmpty) ...[
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.location_on_rounded,
-                              size: 11,
-                              color: Colors.white.withValues(alpha: 0.75)),
-                          const SizedBox(width: 2),
-                          Flexible(
-                            child: Text(
-                              w.locationName,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withValues(alpha: 0.9),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                    ],
-                    Text(
-                      'Open-Meteo',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.white.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          // ── 16일 예보 스트립 ─────────────────────────────────────────────
-          if (w.dailyForecast.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Divider(
-              color: Colors.white.withValues(alpha: 0.25),
-              height: 1,
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 96,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                itemCount: w.dailyForecast.length,
-                separatorBuilder: (context2, i2) => const SizedBox(width: 4),
-                itemBuilder: (ctx, i) {
-                  final f = w.dailyForecast[i];
-                  final isToday = i == 0;
-                  return _ForecastDayTile(
-                    label: f.dayLabel(now),
-                    emoji: f.condition.emoji,
-                    maxTemp: f.maxTemp,
-                    minTemp: f.minTemp,
-                    precipProb: f.precipitationProbability,
-                    highlight: isToday,
-                  );
-                },
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-// ── 일별 예보 타일 ─────────────────────────────────────────────────────────────
-
-class _ForecastDayTile extends StatelessWidget {
-  const _ForecastDayTile({
-    required this.label,
-    required this.emoji,
-    required this.maxTemp,
-    required this.minTemp,
-    required this.precipProb,
-    this.highlight = false,
-  });
-
-  final String label;
-  final String emoji;
-  final double maxTemp;
-  final double minTemp;
-  final int precipProb;
-  final bool highlight;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 58,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      decoration: highlight
-          ? BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.20),
-              borderRadius: BorderRadius.circular(14),
-            )
-          : null,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: highlight ? 1.0 : 0.80),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(emoji, style: const TextStyle(fontSize: 18)),
-          const SizedBox(height: 2),
-          Text(
-            '${maxTemp.round()}°',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          Text(
-            '${minTemp.round()}°',
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.white.withValues(alpha: 0.65),
-            ),
-          ),
-          if (precipProb > 20) ...[
-            const SizedBox(height: 2),
-            Text(
-              '$precipProb%',
-              style: TextStyle(
-                fontSize: 9,
-                color: Colors.white.withValues(alpha: 0.70),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ],
       ),
     );
   }

@@ -2,13 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../data/auth_repository.dart';
 import '../screens/login_screen.dart';
 import 'notification_service.dart';
-import 'weather_service.dart';
 
 class PermissionService {
   PermissionService._();
@@ -68,12 +67,6 @@ class PermissionService {
             ),
             SizedBox(height: 16),
             _PermissionRow(
-              emoji: '📍',
-              title: '위치 권한',
-              description: '현재 위치의 날씨 정보를 홈 화면에 표시합니다.',
-            ),
-            SizedBox(height: 16),
-            _PermissionRow(
               emoji: '🖼️',
               title: '갤러리 / 사진 권한',
               description: '프로필 사진을 갤러리에서 선택하여 변경할 때 필요합니다.',
@@ -106,8 +99,6 @@ class PermissionService {
     // 순차적으로 권한 요청
     if (!context.mounted) return;
     await _requestNotification(context);
-    if (!context.mounted) return;
-    await _requestLocation(context);
   }
 
   // ────────────────────────────────────────────────────
@@ -120,23 +111,6 @@ class PermissionService {
       if (!context.mounted) return;
       await _requestNotification(context);
     }
-
-    // 위치 권한 확인
-    final locStatus = await Geolocator.checkPermission();
-    if (locStatus == LocationPermission.denied) {
-      if (!context.mounted) return;
-      await _requestLocation(context);
-    } else if (locStatus == LocationPermission.deniedForever) {
-      if (!context.mounted) return;
-      _showSettingsSnackbar(
-          context, '위치 권한이 영구 거부되어 있습니다. 설정에서 허용해 주세요.');
-    } else {
-      // 이미 허용 → 날씨 로드가 아직 안 됐다면 재시도
-      if (WeatherService.instance.weather == null &&
-          !WeatherService.instance.loading) {
-        WeatherService.instance.load();
-      }
-    }
   }
 
   // ────────────────────────────────────────────────────
@@ -147,22 +121,6 @@ class PermissionService {
     if (!granted && context.mounted) {
       _showSettingsSnackbar(
           context, '알림 권한이 거부되었습니다. 설정에서 허용해야 할 일 알림을 받을 수 있습니다.');
-    }
-  }
-
-  // ────────────────────────────────────────────────────
-  // 위치 권한 요청
-  // ────────────────────────────────────────────────────
-  Future<void> _requestLocation(BuildContext context) async {
-    final status = await Geolocator.requestPermission();
-    if (status == LocationPermission.whileInUse ||
-        status == LocationPermission.always) {
-      // 허용됨 → 날씨 로드
-      WeatherService.instance.load();
-    } else if (status == LocationPermission.deniedForever &&
-        context.mounted) {
-      _showSettingsSnackbar(
-          context, '위치 권한이 영구 거부되어 있습니다. 설정에서 허용해 주세요.');
     }
   }
 
@@ -193,10 +151,14 @@ class PermissionService {
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 5),
-        action: SnackBarAction(
-          label: '설정 열기',
-          onPressed: () => Geolocator.openAppSettings(),
-        ),
+        // iOS 는 설정 앱의 이 앱 화면을 바로 열 수 있음.
+        // Android 는 별도 플러그인 없이 열 수 없어 안내 문구만 표시.
+        action: Platform.isIOS
+            ? SnackBarAction(
+                label: '설정 열기',
+                onPressed: () => launchUrl(Uri.parse('app-settings:')),
+              )
+            : null,
       ),
     );
   }

@@ -38,8 +38,7 @@ dependencies:
   image_picker: ^1.1.2
   path_provider: ^2.1.4
 
-  # 날씨 (위치 + HTTP)
-  geolocator: ^13.0.2
+  # HTTP (한국 공휴일 API)
   http: ^1.2.2
 
   # 일본 공휴일 (오프라인)

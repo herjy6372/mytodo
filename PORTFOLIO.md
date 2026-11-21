@@ -25,7 +25,7 @@
 | **데이터베이스** | Cloud Firestore |
 | **로컬 알림** | flutter_local_notifications, timezone |
 | **캘린더/그래프** | table_calendar, fl_chart |
-| **위치/날씨** | geolocator, http |
+| **네트워크** | http (한국 공휴일 API) |
 | **공휴일 데이터** | holiday_jp(오프라인), 자체 한국 공휴일 서비스 |
 | **앱 정보** | package_info_plus, device_info_plus |
 | **배포 (Android)** | Google Play Store (AAB, Release Signing) |
@@ -54,8 +54,8 @@
 - **클라우드 동기화 (Beta·Admin 전용)**
   - Firebase Auth(Google 로그인) + Firestore로 기기 간 데이터 백업/복원
 
-- **알림 · 날씨**
-  - 로컬 푸시(일일 알림), 위치 기반 날씨, 한국/일본 공휴일 자동 반영
+- **알림 · 공휴일**
+  - 로컬 푸시(일일 알림), 한국/일본 공휴일 자동 반영
 
 - **다국어 · 테마**
   - 한국어/영어 등 다국어 지원, 라이트/다크/시스템 테마
@@ -96,7 +96,6 @@ lib/
 ├── services/
 │   ├── sync_service.dart            # Firebase 동기화
 │   ├── notification_service.dart / daily_notification_service.dart
-│   ├── weather_service.dart
 │   ├── korean_holiday_service.dart / japanese_holiday_service.dart
 │   └── permission_service.dart
 ├── screens/                         # 23개 화면 (할일/캘린더/가계부/기분/타이머/

@@ -19,7 +19,7 @@
 - **가계부 · 기분 기록** (Pro) — 수입/지출 통계, 날짜별 기분 로그
 - **타이머 · 세계시각** — 집중 타이머, 여러 도시 시각 동시 조회
 - **클라우드 동기화** (Beta) — Google 로그인 + Firestore 백업/복원
-- **알림 · 날씨 · 공휴일** — 일일 알림, 위치 기반 날씨, 한국/일본 공휴일 자동 반영
+- **알림 · 공휴일** — 일일 알림, 한국/일본 공휴일 자동 반영
 - **등급별 권한 관리** — 관리자·베타·프로·학생·일반 5단계 접근 권한
 - **다국어 · 테마** 지원
 
@@ -31,7 +31,7 @@
 | 인증 / DB | Firebase Auth (Google Sign-In), Cloud Firestore |
 | 로컬 저장 / 알림 | SharedPreferences, flutter_local_notifications |
 | UI | table_calendar, fl_chart |
-| 기타 | geolocator, http, package_info_plus |
+| 기타 | http, package_info_plus |
 
 자세한 개발 내용은 [PORTFOLIO.md](PORTFOLIO.md)에 정리되어 있습니다.
 

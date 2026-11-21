@@ -19,7 +19,6 @@ import 'screens/weekly_summary_screen.dart';
 import 'services/daily_notification_service.dart';
 import 'services/notification_service.dart';
 import 'services/sync_service.dart';
-import 'services/weather_service.dart';
 import 'theme/app_theme.dart';
 import 'widgets/paw_background.dart';
 
@@ -58,14 +57,11 @@ Future<void> main() async {
   await SyncService.instance.load();
   await ThemeRepository.instance.load();
   await LanguageRepository.instance.load();
-  // 날씨는 UI가 뜬 뒤 비동기로 로드 (앱 시작 지연 방지)
-  WeatherService.instance.load();
 
-  // 날씨 또는 할 일·기분·가계부 데이터 변경 시 일일 알림 재예약
+  // 할 일·기분·가계부 데이터 변경 시 일일 알림 재예약
   void rescheduleDaily() {
     DailyNotificationService.instance.scheduleDailyNotifications();
   }
-  WeatherService.instance.addListener(rescheduleDaily);
   TodoRepository.instance.addListener(rescheduleDaily);
   MoodRepository.instance.addListener(rescheduleDaily);
   LedgerRepository.instance.addListener(rescheduleDaily);

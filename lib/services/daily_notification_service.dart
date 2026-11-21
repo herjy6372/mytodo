@@ -12,7 +12,6 @@ import '../data/mood_repository.dart';
 import '../data/todo_repository.dart';
 import '../models/ledger.dart';
 import '../models/mood.dart';
-import '../services/weather_service.dart';
 
 /// 하루 알림 시간대. 각 슬롯은 사용자가 개별적으로 켜고 끌 수 있습니다.
 enum DailyNotifSlot {
@@ -173,17 +172,16 @@ class DailyNotificationService extends ChangeNotifier {
     await _cancelAll();
     if (!_enabled) return;
     final todos = TodoRepository.instance.todos;
-    final weather = WeatherService.instance.weather;
     final now = DateTime.now();
 
     if (isSlotEnabled(DailyNotifSlot.morning)) {
-      await _scheduleMorning(now, todos, weather);
+      await _scheduleMorning(now, todos);
     }
     if (isSlotEnabled(DailyNotifSlot.lunch)) {
       await _scheduleLunch(now, todos);
     }
     if (isSlotEnabled(DailyNotifSlot.evening)) {
-      await _scheduleEvening(now, todos, weather);
+      await _scheduleEvening(now, todos);
     }
     if (isSlotEnabled(DailyNotifSlot.bedtime)) {
       await _scheduleBedtime(now);
@@ -195,19 +193,15 @@ class DailyNotificationService extends ChangeNotifier {
 
   // ── 정기 예약 내부 메서드 ─────────────────────────────────────────────────
 
-  Future<void> _scheduleMorning(
-      DateTime now, List todos, WeatherInfo? weather) async {
+  Future<void> _scheduleMorning(DateTime now, List todos) async {
     final todayTodos = _todayTodos(todos, now);
-    final weatherText = weather != null
-        ? '오늘 날씨는 ${weather.condition.label}(${weather.temperature.round()}°C)이에요.'
-        : '날씨 정보를 불러오는 중이에요.';
     final String body;
     if (todayTodos.isEmpty) {
-      body = '잘 주무셨나요? $weatherText 오늘은 예정된 할 일이 없어요. 여유로운 하루 되세요! 😊';
+      body = '잘 주무셨나요? 오늘은 예정된 할 일이 없어요. 여유로운 하루 되세요! 😊';
     } else {
       final first = todayTodos.first.title as String;
       final extra = todayTodos.length > 1 ? ' 외 ${todayTodos.length - 1}개' : '';
-      body = '잘 주무셨나요? $weatherText 오늘 할 일: $first$extra이 있어요. 파이팅! 💪';
+      body = '잘 주무셨나요? 오늘 할 일: $first$extra이 있어요. 파이팅! 💪';
     }
     await _scheduleAt(
         id: DailyNotifSlot.morning.id,
@@ -235,20 +229,16 @@ class DailyNotificationService extends ChangeNotifier {
         now: now);
   }
 
-  Future<void> _scheduleEvening(
-      DateTime now, List todos, WeatherInfo? weather) async {
+  Future<void> _scheduleEvening(DateTime now, List todos) async {
     final todayTodos = _todayTodos(todos, now);
     final remaining = todayTodos.where((t) => !(t.isDone as bool)).toList();
-    final tomorrowWeather = weather != null
-        ? '내일 날씨는 ${weather.condition.label} 예정이에요.'
-        : '';
     final String body;
     if (remaining.isEmpty) {
       body =
-          '수고하셨어요! 오늘 할 일을 모두 마쳤어요. $tomorrowWeather 가계부도 잊지 말고 오늘치 작성해 주세요! 📒';
+          '수고하셨어요! 오늘 할 일을 모두 마쳤어요. 가계부도 잊지 말고 오늘치 작성해 주세요! 📒';
     } else {
       body =
-          '수고하셨어요! 아직 ${remaining.length}개의 할 일이 남아 있어요. $tomorrowWeather 가계부 작성도 잊지 마세요! 📒';
+          '수고하셨어요! 아직 ${remaining.length}개의 할 일이 남아 있어요. 가계부 작성도 잊지 마세요! 📒';
     }
     await _scheduleAt(
         id: DailyNotifSlot.evening.id,
