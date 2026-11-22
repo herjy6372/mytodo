@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="14dp" android:background="@drawable/widget_bg">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <TextView android:id="@+id/todo_header" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:text="오늘 할 일" android:textColor="@color/widget_text"
+            android:textSize="14sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"/>
+        <TextView android:id="@+id/todo_count" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="@color/widget_sub" android:textSize="12sp"/>
+    </LinearLayout>
+    <TextView android:id="@+id/todo_empty" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:gravity="center" android:text="오늘 할 일이 없어요" android:textColor="@color/widget_sub" android:textSize="13sp"
+        android:visibility="gone"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_marginTop="6dp">
+    <LinearLayout android:id="@+id/row_0" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="5dp" android:paddingBottom="5dp"
+        android:visibility="gone">
+        <ImageView android:id="@+id/check_0" android:layout_width="22dp" android:layout_height="22dp"
+            android:src="@drawable/widget_check_off" android:contentDescription="완료 표시"/>
+        <TextView android:id="@+id/title_0" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:layout_marginStart="10dp" android:textColor="@color/widget_text" android:textSize="14sp"
+            android:maxLines="1" android:ellipsize="end"/>
+        <TextView android:id="@+id/time_0" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="6dp" android:textColor="@color/widget_sub" android:textSize="12sp"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/row_1" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="5dp" android:paddingBottom="5dp"
+        android:visibility="gone">
+        <ImageView android:id="@+id/check_1" android:layout_width="22dp" android:layout_height="22dp"
+            android:src="@drawable/widget_check_off" android:contentDescription="완료 표시"/>
+        <TextView android:id="@+id/title_1" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:layout_marginStart="10dp" android:textColor="@color/widget_text" android:textSize="14sp"
+            android:maxLines="1" android:ellipsize="end"/>
+        <TextView android:id="@+id/time_1" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="6dp" android:textColor="@color/widget_sub" android:textSize="12sp"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/row_2" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="5dp" android:paddingBottom="5dp"
+        android:visibility="gone">
+        <ImageView android:id="@+id/check_2" android:layout_width="22dp" android:layout_height="22dp"
+            android:src="@drawable/widget_check_off" android:contentDescription="완료 표시"/>
+        <TextView android:id="@+id/title_2" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:layout_marginStart="10dp" android:textColor="@color/widget_text" android:textSize="14sp"
+            android:maxLines="1" android:ellipsize="end"/>
+        <TextView android:id="@+id/time_2" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="6dp" android:textColor="@color/widget_sub" android:textSize="12sp"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/row_3" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="5dp" android:paddingBottom="5dp"
+        android:visibility="gone">
+        <ImageView android:id="@+id/check_3" android:layout_width="22dp" android:layout_height="22dp"
+            android:src="@drawable/widget_check_off" android:contentDescription="완료 표시"/>
+        <TextView android:id="@+id/title_3" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:layout_marginStart="10dp" android:textColor="@color/widget_text" android:textSize="14sp"
+            android:maxLines="1" android:ellipsize="end"/>
+        <TextView android:id="@+id/time_3" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="6dp" android:textColor="@color/widget_sub" android:textSize="12sp"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/row_4" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="5dp" android:paddingBottom="5dp"
+        android:visibility="gone">
+        <ImageView android:id="@+id/check_4" android:layout_width="22dp" android:layout_height="22dp"
+            android:src="@drawable/widget_check_off" android:contentDescription="완료 표시"/>
+        <TextView android:id="@+id/title_4" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:layout_marginStart="10dp" android:textColor="@color/widget_text" android:textSize="14sp"
+            android:maxLines="1" android:ellipsize="end"/>
+        <TextView android:id="@+id/time_4" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="6dp" android:textColor="@color/widget_sub" android:textSize="12sp"/>
+    </LinearLayout>
+    </LinearLayout>
+    <TextView android:id="@+id/todo_more" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textColor="@color/widget_sub" android:textSize="12sp" android:visibility="gone"/>
+</LinearLayout>

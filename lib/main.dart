@@ -7,6 +7,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'data/auth_repository.dart';
 import 'data/language_repository.dart';
 import 'data/ledger_repository.dart';
+import 'data/alarm_repository.dart';
+import 'data/memo_repository.dart';
 import 'data/mood_repository.dart';
 import 'data/profile_repository.dart';
 import 'data/theme_repository.dart';
@@ -15,10 +17,19 @@ import 'data/world_clock_repository.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/home_screen.dart';
+import 'screens/calendar_screen.dart';
+import 'screens/graph_screen.dart';
+import 'screens/ledger_screen.dart';
+import 'screens/memo_screen.dart';
+import 'screens/mood_screen.dart';
+import 'screens/timer_screen.dart';
+import 'screens/todo_list_screen.dart';
 import 'screens/weekly_summary_screen.dart';
+import 'screens/world_clock_screen.dart';
 import 'services/daily_notification_service.dart';
 import 'services/notification_service.dart';
 import 'services/sync_service.dart';
+import 'services/widget_service.dart';
 import 'theme/app_theme.dart';
 import 'widgets/paw_background.dart';
 
@@ -50,6 +61,8 @@ Future<void> main() async {
   await DailyNotificationService.instance.requestPermission();
   await TodoRepository.instance.load();
   await MoodRepository.instance.load();
+  await MemoRepository.instance.load();
+  await AlarmRepository.instance.load();
   await LedgerRepository.instance.load();
   await WorldClockRepository.instance.load();
   await AuthRepository.instance.load();
@@ -71,6 +84,28 @@ Future<void> main() async {
 
   runApp(MyTodoApp(navigatorKey: navigatorKey));
 
+  // 홈 화면 위젯 연결 (Android). 위젯을 누르면 해당 화면으로 이동.
+  await WidgetService.init(navigatorKey, (screen) {
+    final loggedIn = AuthRepository.instance.isLoggedIn;
+    final pro = loggedIn && ProfileRepository.instance.role.canUsePro;
+    final Widget? page = switch (screen) {
+      'todo' when loggedIn => const TodoListScreen(),
+      'calendar' when loggedIn => const CalendarScreen(),
+      'graph' when loggedIn => const GraphScreen(),
+      'mood' when pro => const MoodScreen(),
+      'ledger' when pro => const LedgerScreen(),
+      'memo' => const MemoScreen(),
+      'memo_new' => const MemoEditScreen(),
+      'timer' => const TimerScreen(),
+      'worldclock' => const WorldClockScreen(),
+      _ => null, // 권한이 없으면 홈 화면에 머무름
+    };
+    if (page != null) {
+      navigatorKey.currentState
+          ?.push(MaterialPageRoute(builder: (_) => page));
+    }
+  });
+
   // 알림 탭 핸들러: 주간 요약 알림 → WeeklySummaryScreen 이동
   DailyNotificationService.onNotificationTap = (payload) {
     if (payload == 'weekly_summary') {
@@ -89,7 +124,7 @@ class MyTodoApp extends StatefulWidget {
   State<MyTodoApp> createState() => _MyTodoAppState();
 }
 
-class _MyTodoAppState extends State<MyTodoApp> {
+class _MyTodoAppState extends State<MyTodoApp> with WidgetsBindingObserver {
   final _theme = ThemeRepository.instance;
   final _lang = LanguageRepository.instance;
   final _auth = AuthRepository.instance;
@@ -102,6 +137,16 @@ class _MyTodoAppState extends State<MyTodoApp> {
     _lang.addListener(_onChange);
     _auth.addListener(_onChange);
     _profile.addListener(_onChange);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// 앱으로 돌아올 때: 홈 위젯에서 체크한 할 일을 반영하고 위젯을 최신화.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      TodoRepository.instance.reload();
+      WidgetService.publishAll();
+    }
   }
 
   @override
@@ -110,6 +155,7 @@ class _MyTodoAppState extends State<MyTodoApp> {
     _lang.removeListener(_onChange);
     _auth.removeListener(_onChange);
     _profile.removeListener(_onChange);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

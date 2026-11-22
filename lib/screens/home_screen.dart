@@ -15,11 +15,12 @@ import '../models/user_profile.dart';
 import '../models/todo.dart';
 import '../services/permission_service.dart';
 import '../widgets/rounded_menu_button.dart';
+import 'alarm_screen.dart';
 import 'calendar_screen.dart';
 import 'graph_screen.dart';
 import 'ledger_screen.dart';
 import 'login_screen.dart';
-import 'manual_screen.dart';
+import 'memo_screen.dart';
 import 'mood_screen.dart';
 import 'onboarding_screen.dart';
 import 'pro_request_screen.dart';
@@ -322,15 +323,23 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 상단 오른쪽 설정 버튼
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    icon: Icon(Icons.settings_rounded,
-                        color: scheme.onSurfaceVariant),
-                    tooltip: '설정',
-                    onPressed: () => _go(const SettingsScreen()),
-                  ),
+                // 상단 오른쪽 알람 · 설정 버튼
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.alarm_rounded,
+                          color: scheme.onSurfaceVariant),
+                      tooltip: '알람',
+                      onPressed: () => _go(const AlarmScreen()),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.settings_rounded,
+                          color: scheme.onSurfaceVariant),
+                      tooltip: '설정',
+                      onPressed: () => _go(const SettingsScreen()),
+                    ),
+                  ],
                 ),
                 // 안내 배너
                 if (isBetaOrAdmin) ...[
@@ -526,7 +535,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                // (5) 추가 메뉴 바 — 세계 시각 / 사용설명서 / 설정
+                // (5) 추가 메뉴 바 — 세계 시각 / 메모 / 고객지원
                 RoundedMenuBar(
                   children: [
                     MenuPill(
@@ -536,10 +545,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () => _go(const WorldClockScreen()),
                     ),
                     MenuPill(
-                      icon: Icons.menu_book_rounded,
-                      label: '사용설명서',
-                      color: const Color(0xFF78909C),
-                      onTap: () => _go(const ManualScreen()),
+                      icon: Icons.sticky_note_2_rounded,
+                      label: '메모',
+                      color: const Color(0xFFF4B400),
+                      onTap: () => _go(const MemoScreen()),
                     ),
                     MenuPill(
                       icon: Icons.support_agent_rounded,

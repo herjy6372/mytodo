@@ -33,6 +33,7 @@ class Todo {
     required this.category,
     this.memo = '',
     this.isDone = false,
+    this.alarm = false,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -43,6 +44,8 @@ class Todo {
   TodoCategory category;
   String memo;
   bool isDone;
+  /// true 면 일반 알림 대신 알람음으로 알려줍니다.
+  bool alarm;
   final DateTime createdAt;
 
   Todo copyWith({
@@ -52,6 +55,7 @@ class Todo {
     TodoCategory? category,
     String? memo,
     bool? isDone,
+    bool? alarm,
   }) {
     return Todo(
       id: id,
@@ -61,6 +65,7 @@ class Todo {
       category: category ?? this.category,
       memo: memo ?? this.memo,
       isDone: isDone ?? this.isDone,
+      alarm: alarm ?? this.alarm,
       createdAt: createdAt,
     );
   }
@@ -73,6 +78,7 @@ class Todo {
         'category': category.name,
         'memo': memo,
         'isDone': isDone,
+        'alarm': alarm,
         'createdAt': createdAt.toIso8601String(),
       };
 
@@ -84,6 +90,7 @@ class Todo {
         category: TodoCategory.fromName(json['category'] as String? ?? 'etc'),
         memo: json['memo'] as String? ?? '',
         isDone: json['isDone'] as bool? ?? false,
+        alarm: json['alarm'] as bool? ?? false,
         createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
             DateTime.now(),
       );

@@ -20,6 +20,14 @@ class TodoRepository extends ChangeNotifier {
 
   List<Todo> get todos => List.unmodifiable(_todos);
 
+  /// 홈 화면 위젯 등 앱 밖에서 바뀐 저장 데이터를 다시 읽어옵니다.
+  Future<void> reload() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    _loaded = false;
+    await load();
+  }
+
   Future<void> load() async {
     if (_loaded) return;
     final prefs = await SharedPreferences.getInstance();
@@ -77,6 +85,7 @@ class TodoRepository extends ChangeNotifier {
     required DateTime dueDate,
     required TodoCategory category,
     String memo = '',
+    bool alarm = false,
   }) async {
     final todo = Todo(
       id: _uuid.v4(),
@@ -85,6 +94,7 @@ class TodoRepository extends ChangeNotifier {
       dueDate: dueDate,
       category: category,
       memo: memo,
+      alarm: alarm,
     );
     _todos.add(todo);
     await _save();

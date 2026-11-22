@@ -105,6 +105,22 @@ class ManualScreen extends StatelessWidget {
                 '해외 팀·지인과 일정을 조율할 때 편리하게 활용하세요.',
           ),
           _FeatureCard(
+            icon: Icons.alarm_rounded,
+            color: const Color(0xFFFFA94D),
+            title: '알람',
+            description: '메인 화면 오른쪽 위 알람 버튼에서 아침 깨우기, 잘 때 알람, 일반 알람을 '
+                '시간과 반복 요일로 설정할 수 있습니다. 할 일 추가 화면에서 "알람으로 알리기"를 켜면 '
+                '그 할 일 시간에 알람음이 울립니다. 무음 모드에서는 소리가 제한될 수 있어요.',
+          ),
+          _FeatureCard(
+            icon: Icons.sticky_note_2_rounded,
+            color: const Color(0xFFF4B400),
+            title: '메모',
+            description: '메인 화면의 메모 버튼에서 떠오르는 생각을 자유롭게 기록합니다. '
+                '색상을 고를 수 있고, 메모를 길게 누르거나 핀 버튼을 누르면 맨 위에 고정됩니다. '
+                '작성 화면을 나가면 자동으로 저장됩니다.',
+          ),
+          _FeatureCard(
             icon: Icons.cloud_sync_rounded,
             color: const Color(0xFF6C5CE7),
             title: '클라우드 동기화 (Beta 이상)',

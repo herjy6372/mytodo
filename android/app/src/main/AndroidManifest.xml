@@ -34,6 +34,9 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="es.antonborri.home_widget.action.LAUNCH"/>
+            </intent-filter>
         </activity>
 
         <!-- flutter_local_notifications: 예약 알림 / 부팅 후 복원 receiver -->
@@ -48,6 +51,74 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
                 <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- 홈 화면 위젯 -->
+        <receiver android:name=".widget.TodoWidgetProvider" android:exported="false" android:label="@string/widget_todo_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_todo_info"/>
+        </receiver>
+        <receiver android:name=".widget.DailyDoneWidgetProvider" android:exported="false" android:label="@string/widget_daily_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_daily_info"/>
+        </receiver>
+        <receiver android:name=".widget.YearlyWidgetProvider" android:exported="false" android:label="@string/widget_yearly_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_yearly_info"/>
+        </receiver>
+        <receiver android:name=".widget.MoodWidgetProvider" android:exported="false" android:label="@string/widget_mood_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_mood_info"/>
+        </receiver>
+        <receiver android:name=".widget.LedgerWidgetProvider" android:exported="false" android:label="@string/widget_ledger_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_ledger_info"/>
+        </receiver>
+        <receiver android:name=".widget.MemoWidgetProvider" android:exported="false" android:label="@string/widget_memo_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_memo_info"/>
+        </receiver>
+        <receiver android:name=".widget.TimerWidgetProvider" android:exported="false" android:label="@string/widget_timer_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_timer_info"/>
+        </receiver>
+        <receiver android:name=".widget.WorldClockWidgetProvider" android:exported="false" android:label="@string/widget_clock_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_clock_info"/>
+        </receiver>
+        <receiver android:name=".widget.WorldClockDualWidgetProvider" android:exported="false" android:label="@string/widget_clock_dual_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_clock_dual_info"/>
+        </receiver>
+        <receiver android:name="es.antonborri.home_widget.HomeWidgetBackgroundReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="es.antonborri.home_widget.action.BACKGROUND"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name="es.antonborri.home_widget.HomeWidgetScheduledUpdateReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"/>
             </intent-filter>
         </receiver>
 

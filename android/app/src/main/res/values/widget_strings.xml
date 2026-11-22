@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_todo_label">할 일 체크</string>
+    <string name="widget_todo_desc">오늘 할 일을 보고 바로 체크해요</string>
+    <string name="widget_daily_label">일별 완료 현황</string>
+    <string name="widget_daily_desc">최근 7일 할 일 완료율</string>
+    <string name="widget_yearly_label">연간 활동 기록</string>
+    <string name="widget_yearly_desc">1년 동안 완료한 할 일을 잔디로 보여줘요</string>
+    <string name="widget_mood_label">기분 한 줄</string>
+    <string name="widget_mood_desc">최근 기록한 기분</string>
+    <string name="widget_ledger_label">가계부</string>
+    <string name="widget_ledger_desc">이번 달 입금·출금 요약</string>
+    <string name="widget_memo_label">메모</string>
+    <string name="widget_memo_desc">고정하거나 최근 수정한 메모</string>
+    <string name="widget_timer_label">타이머</string>
+    <string name="widget_timer_desc">버튼 한 번으로 집중 타이머 시작</string>
+    <string name="widget_clock_label">세계시각</string>
+    <string name="widget_clock_desc">메인 도시의 현재 시각</string>
+    <string name="widget_clock_dual_label">세계시각 (메인 | 서브)</string>
+    <string name="widget_clock_dual_desc">두 도시의 시각을 나란히</string>
+</resources>

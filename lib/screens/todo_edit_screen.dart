@@ -21,6 +21,7 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
   late final TextEditingController _memoCtrl;
   late DateTime _dueDate;
   late TodoCategory _category;
+  late bool _alarm;
 
   bool get _isEditing => widget.todo != null;
 
@@ -35,6 +36,7 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
         widget.initialDate ??
         DateTime.now().add(const Duration(hours: 1));
     _category = t?.category ?? TodoCategory.work;
+    _alarm = t?.alarm ?? false;
   }
 
   @override
@@ -88,6 +90,7 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
           dueDate: _dueDate,
           category: _category,
           memo: _memoCtrl.text.trim(),
+          alarm: _alarm,
         ),
       );
     } else {
@@ -97,6 +100,7 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
         dueDate: _dueDate,
         category: _category,
         memo: _memoCtrl.text.trim(),
+        alarm: _alarm,
       );
     }
     if (!mounted) return;
@@ -184,6 +188,19 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
                     style: const TextStyle(fontSize: 15),
                   ),
                 ),
+              ),
+              const SizedBox(height: 4),
+              SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                secondary: Icon(Icons.alarm_rounded,
+                    color: _alarm
+                        ? Theme.of(context).colorScheme.primary
+                        : null),
+                title: const Text('알람으로 알리기',
+                    style: TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: const Text('시간이 되면 알림 대신 알람음이 울려요'),
+                value: _alarm,
+                onChanged: (v) => setState(() => _alarm = v),
               ),
               const SizedBox(height: 16),
               const _Label('카테고리'),

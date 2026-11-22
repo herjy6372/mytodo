@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="horizontal" android:padding="14dp" android:background="@drawable/widget_bg">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:orientation="vertical">
+        <TextView android:id="@+id/main_city" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/widget_sub" android:textSize="13sp" android:textStyle="bold" android:maxLines="1"/>
+        <TextClock android:id="@+id/main_time" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+            android:gravity="center_vertical" android:format12Hour="a h:mm" android:format24Hour="HH:mm"
+            android:textColor="@color/widget_text" android:textSize="26sp" android:textStyle="bold" android:maxLines="1"/>
+        <TextClock android:id="@+id/main_date" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:format12Hour="M월 d일 (E)" android:format24Hour="M월 d일 (E)"
+            android:textColor="@color/widget_sub" android:textSize="12sp"/>
+    </LinearLayout>
+    <ImageView android:layout_width="1dp" android:layout_height="match_parent" android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp" android:src="@color/widget_divider" android:scaleType="fitXY"
+        android:importantForAccessibility="no"/>
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:orientation="vertical">
+        <TextView android:id="@+id/sub_city" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/widget_sub" android:textSize="13sp" android:textStyle="bold" android:maxLines="1"/>
+        <TextClock android:id="@+id/sub_time" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+            android:gravity="center_vertical" android:format12Hour="a h:mm" android:format24Hour="HH:mm"
+            android:textColor="@color/widget_text" android:textSize="26sp" android:textStyle="bold" android:maxLines="1"/>
+        <TextClock android:id="@+id/sub_date" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:format12Hour="M월 d일 (E)" android:format24Hour="M월 d일 (E)"
+            android:textColor="@color/widget_sub" android:textSize="12sp"/>
+    </LinearLayout>
+</LinearLayout>
