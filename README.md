@@ -12,16 +12,22 @@
 |:---:|:---:|:---:|:---:|
 | <img src="docs/screenshots/home.png" width="200" alt="홈 화면"> | <img src="docs/screenshots/todo_list.png" width="200" alt="할 일 목록"> | <img src="docs/screenshots/calendar.png" width="200" alt="날짜형 목록"> | <img src="docs/screenshots/graph.png" width="200" alt="그래프형 목록"> |
 
+| 기분 한 줄 | 가계부 | 알람 | 고양이 테마 |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/mood.png" width="200" alt="기분 한 줄"> | <img src="docs/screenshots/ledger.png" width="200" alt="가계부"> | <img src="docs/screenshots/alarm.png" width="200" alt="알람 화면"> | <img src="docs/screenshots/theme_cat.png" width="200" alt="고양이 테마"> |
+
 ## 주요 기능
 
 - **할 일 관리** — 카테고리(업무·공부·생활·건강·취미)별 정리, 장소·메모 태깅
 - **캘린더 · 통계** — 날짜별 일정 보기, 완료율과 카테고리 분포 그래프
-- **가계부 · 기분 기록** (Pro) — 수입/지출 통계, 날짜별 기분 로그
+- **가계부 · 기분 기록** — 수입/지출 통계, 날짜별 기분 로그
+- **알람** — 1분간 울리는 알람 화면, 1·5·10·30분 다시 울림
+- **메모 · 홈 화면 위젯** — 색상 메모, Android/iOS 홈 화면 위젯
 - **타이머 · 세계시각** — 집중 타이머, 여러 도시 시각 동시 조회
 - **클라우드 동기화** (Beta) — Google 로그인 + Firestore 백업/복원
 - **알림 · 공휴일** — 일일 알림, 한국/일본 공휴일 자동 반영
 - **등급별 권한 관리** — 관리자·베타·프로·학생·일반 5단계 접근 권한
-- **다국어 · 테마** 지원
+- **다국어 · 테마** — 5개 언어, 시스템·고양이·강아지·기린·커피 테마
 
 ## 기술 스택
 
