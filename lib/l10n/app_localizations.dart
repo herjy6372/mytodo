@@ -29,7 +29,7 @@ class AppLocalizations {
 
   // ── 공통 ────────────────────────────────────────────────────────────────
 
-  String get appTitle    => _t('나의 할 일 (Beta)', 'My To-Do (Beta)',    'マイToDo (Beta)',         'Aking Gawain (Beta)',    'Công Việc Của Tôi (Beta)');
+  String get appTitle    => _t('나의 할 일', 'My To-Do',    'マイToDo',         'Aking Gawain',    'Công Việc Của Tôi');
   String get cancel      => _t('취소',             'Cancel',             'キャンセル',              'Kanselahin',            'Hủy');
   String get confirm     => _t('확인',             'Confirm',            '確認',                   'Kumpirmahin',           'Xác nhận');
   String get save        => _t('저장',             'Save',               '保存',                   'I-save',                'Lưu');
@@ -243,7 +243,7 @@ class AppLocalizations {
   String get settingsProApply  => _t('Pro 등급 신청', 'Apply for Pro', 'Proランク申請', 'Mag-apply para sa Pro', 'Đăng ký Pro');
   String get settingsProManage => _t('Pro / 학생 승인 관리 (관리자)', 'Pro / Student Approval (Admin)', 'Pro / 学生承認管理 (管理者)', 'Pro / Student Approval (Admin)', 'Quản lý duyệt Pro / Học sinh (Admin)');
 
-  String get settingsFooter => _t('나의 할 일 (Beta) · made with Flutter', 'My To-Do (Beta) · made with Flutter', 'マイToDo (Beta) · made with Flutter', 'Aking Gawain (Beta) · made with Flutter', 'Công Việc Của Tôi (Beta) · made with Flutter');
+  String get settingsFooter => _t('나의 할 일 · made with Flutter', 'My To-Do · made with Flutter', 'マイToDo · made with Flutter', 'Aking Gawain · made with Flutter', 'Công Việc Của Tôi · made with Flutter');
 
   // ── 로그인 화면 ──────────────────────────────────────────────────────────
 

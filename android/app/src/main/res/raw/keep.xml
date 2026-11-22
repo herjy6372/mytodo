@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 알람음은 알림 채널에서 이름으로만 참조되므로 리소스 축소 시 지워지지 않도록 유지 -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/alarm" />

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/auth_repository.dart';
-import '../data/profile_repository.dart';
 import '../data/theme_repository.dart';
-import '../widgets/beta_badge.dart';
 
 
 class ThemeSettingsScreen extends StatefulWidget {
@@ -15,22 +12,16 @@ class ThemeSettingsScreen extends StatefulWidget {
 
 class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
   final _repo = ThemeRepository.instance;
-  final _auth = AuthRepository.instance;
-  final _profile = ProfileRepository.instance;
 
   @override
   void initState() {
     super.initState();
     _repo.addListener(_onChange);
-    _auth.addListener(_onChange);
-    _profile.addListener(_onChange);
   }
 
   @override
   void dispose() {
     _repo.removeListener(_onChange);
-    _auth.removeListener(_onChange);
-    _profile.removeListener(_onChange);
     super.dispose();
   }
 
@@ -38,27 +29,11 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
     if (mounted) setState(() {});
   }
 
-  // Pro·Beta·Admin 모두 동물 테마 사용 가능
-  bool get _isProOrAdmin {
-    if (!_auth.isLoggedIn) return false;
-    return _profile.role.canUseAnimalTheme;
-  }
-
-  void _showProRequired() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('해당 테마는 Pro 이상 등급 전용입니다. 설정에서 Pro 등급을 신청해 보세요.'),
-        duration: Duration(seconds: 3),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final current = _repo.choice;
     final displayMode = _repo.displayMode;
-    final isProOrAdmin = _isProOrAdmin;
 
     return Scaffold(
       appBar: AppBar(title: const Text('테마')),
@@ -67,9 +42,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
             Text(
-              isProOrAdmin
-                  ? '시스템·고양이·강아지·기린·커피 중에서 선택할 수 있어요.'
-                  : '일반 등급은 시스템 테마를 사용할 수 있어요. Pro 등급을 신청하면 더 많은 테마를 사용할 수 있습니다.',
+              '시스템·고양이·강아지·기린·커피 중에서 선택할 수 있어요.',
               style: TextStyle(
                 color: scheme.onSurfaceVariant,
                 fontSize: 13,
@@ -86,10 +59,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                   color: Color(0xFF6C5CE7), size: 22),
               accent: const Color(0xFF6C5CE7),
               title: '시스템 테마',
-              subtitle: '기기 설정에 따라 라이트/다크 전환. 일반 등급도 사용 가능.',
-              showBeta: false,
-              showNormalBadge: true,
-              locked: false,
+              subtitle: '기기 설정에 따라 라이트/다크 전환.',
               previewBuilder: (context) => const _SystemColorRing(),
               onTap: () => _repo.setChoice(AppThemeChoice.system),
             ),
@@ -117,15 +87,10 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
               accent: const Color(0xFFFF6B81),
               title: '고양이 테마',
               subtitle: '핑크 톤 배경색 + 반투명 고양이 모양 패턴',
-              showBeta: true,
-              showProBadge: true,
-              locked: !isProOrAdmin,
               previewBuilder: (_) => const _ThemeColorSwatch(
                 color: Color(0xFFFF6B81),
               ),
-              onTap: isProOrAdmin
-                  ? () => _repo.setChoice(AppThemeChoice.cat)
-                  : _showProRequired,
+              onTap: () => _repo.setChoice(AppThemeChoice.cat),
             ),
             const SizedBox(height: 12),
 
@@ -138,15 +103,10 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
               accent: const Color(0xFFC97B5C),
               title: '강아지 테마',
               subtitle: '따뜻한 갈색 톤 배경색 + 반투명 강아지 모양 패턴',
-              showBeta: true,
-              showProBadge: true,
-              locked: !isProOrAdmin,
               previewBuilder: (_) => const _ThemeColorSwatch(
                 color: Color(0xFFC97B5C),
               ),
-              onTap: isProOrAdmin
-                  ? () => _repo.setChoice(AppThemeChoice.dog)
-                  : _showProRequired,
+              onTap: () => _repo.setChoice(AppThemeChoice.dog),
             ),
             const SizedBox(height: 12),
 
@@ -159,15 +119,10 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
               accent: const Color(0xFFFF9800),
               title: '기린 테마',
               subtitle: '주황색 톤 배경색 + 반투명 기린 모양 패턴',
-              showBeta: true,
-              showProBadge: true,
-              locked: !isProOrAdmin,
               previewBuilder: (_) => const _ThemeColorSwatch(
                 color: Color(0xFFFF9800),
               ),
-              onTap: isProOrAdmin
-                  ? () => _repo.setChoice(AppThemeChoice.giraffe)
-                  : _showProRequired,
+              onTap: () => _repo.setChoice(AppThemeChoice.giraffe),
             ),
             const SizedBox(height: 12),
 
@@ -180,15 +135,10 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
               accent: const Color(0xFF8BC34A),
               title: '커피 테마',
               subtitle: '연두색 톤 배경색 + 반투명 커피잔(연기 포함) 패턴',
-              showBeta: true,
-              showProBadge: true,
-              locked: !isProOrAdmin,
               previewBuilder: (_) => const _ThemeColorSwatch(
                 color: Color(0xFF8BC34A),
               ),
-              onTap: isProOrAdmin
-                  ? () => _repo.setChoice(AppThemeChoice.coffee)
-                  : _showProRequired,
+              onTap: () => _repo.setChoice(AppThemeChoice.coffee),
             ),
             const SizedBox(height: 24),
             Center(
@@ -315,10 +265,6 @@ class _ThemeCard extends StatelessWidget {
     required this.subtitle,
     required this.previewBuilder,
     required this.onTap,
-    required this.showBeta,
-    this.showNormalBadge = false,
-    this.showProBadge = false,
-    this.locked = false,
   });
 
   final AppThemeChoice choice;
@@ -329,17 +275,11 @@ class _ThemeCard extends StatelessWidget {
   final String subtitle;
   final WidgetBuilder previewBuilder;
   final VoidCallback onTap;
-  final bool showBeta;
-  final bool showNormalBadge;
-  final bool showProBadge;
-  final bool locked;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Opacity(
-      opacity: locked ? 0.55 : 1.0,
-      child: Material(
+    return Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
@@ -384,28 +324,6 @@ class _ThemeCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              if (showNormalBadge) ...[
-                                const SizedBox(width: 6),
-                                _SmallBadge(
-                                    label: '일반',
-                                    color: const Color(0xFF22B6A0)),
-                              ],
-                              if (showBeta) ...[
-                                const SizedBox(width: 6),
-                                const BetaBadge(),
-                              ],
-                              if (showProBadge) ...[
-                                const SizedBox(width: 4),
-                                _SmallBadge(
-                                    label: 'Pro',
-                                    color: const Color(0xFF6C5CE7)),
-                              ],
-                              if (locked) ...[
-                                const SizedBox(width: 6),
-                                Icon(Icons.lock_rounded,
-                                    size: 14,
-                                    color: scheme.onSurfaceVariant),
-                              ],
                             ],
                           ),
                           const SizedBox(height: 2),
@@ -421,7 +339,7 @@ class _ThemeCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    if (selected && !locked)
+                    if (selected)
                       Icon(Icons.check_circle_rounded, color: accent),
                   ],
                 ),
@@ -431,38 +349,11 @@ class _ThemeCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }
 
 // ─── 소형 뱃지 ──────────────────────────────────────────────────────────
-
-class _SmallBadge extends StatelessWidget {
-  const _SmallBadge({required this.label, required this.color});
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 10,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-    );
-  }
-}
 
 // ─── 프리뷰 위젯들 ──────────────────────────────────────────────────────
 

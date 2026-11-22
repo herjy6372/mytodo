@@ -23,7 +23,6 @@ import 'login_screen.dart';
 import 'memo_screen.dart';
 import 'mood_screen.dart';
 import 'onboarding_screen.dart';
-import 'pro_request_screen.dart';
 import 'settings_screen.dart';
 import 'support_screen.dart';
 import 'timer_screen.dart';
@@ -235,21 +234,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _go(const LoginScreen());
   }
 
-  void _promptProOrLogin() {
-    if (!_auth.isLoggedIn) {
-      _promptLogin();
-      return;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Pro 등급 이상에서 사용할 수 있는 기능입니다.'),
-        action: SnackBarAction(
-          label: '신청하기',
-          onPressed: () => _go(const ProRequestScreen()),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -258,13 +242,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final loggedIn = _auth.isLoggedIn;
     final role = _profile.role;
     final profile = _profile.profile;
-    // Pro·Beta·Admin: 기분·가계부·타이머·세계시각·동물테마 사용 가능
-    final isProOrAbove = loggedIn && role.canUsePro;
     // Beta·Admin: 클라우드 동기화·건강 기능 사용 가능
     final isBetaOrAdmin = loggedIn && role.canUseBeta;
 
-    final themeChoice =
-        isProOrAbove ? ThemeRepository.instance.choice : AppThemeChoice.system;
+    final themeChoice = ThemeRepository.instance.choice;
     // 테마 배경색과 그래디언트 상단색을 통일 (커스텀 테마는 패턴 배경색과 동일)
     final gradientTop = themeChoice.isCustomTheme
         ? themeBgColor(themeChoice, isDark)
@@ -505,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                // (4) Pro 기능 메뉴 바 — 기분 한 줄 / 가계부 / 타이머
+                // (4) 기록 메뉴 바 — 기분 한 줄 / 가계부 / 타이머
                 RoundedMenuBar(
                   children: [
                     MenuPill(
@@ -513,18 +494,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       label: l.menuMood,
                       color: const Color(0xFFFF8FA3),
                       onTap: () => _go(const MoodScreen()),
-                      onDisabledTap: _promptProOrLogin,
-                      disabled: !isProOrAbove,
-                      badge: MenuBadge.pro,
+                      onDisabledTap: _promptLogin,
+                      disabled: !loggedIn,
                     ),
                     MenuPill(
                       icon: Icons.account_balance_wallet_rounded,
                       label: l.menuLedger,
                       color: const Color(0xFF2EC4B6),
                       onTap: () => _go(const LedgerScreen()),
-                      onDisabledTap: _promptProOrLogin,
-                      disabled: !isProOrAbove,
-                      badge: MenuBadge.pro,
+                      onDisabledTap: _promptLogin,
+                      disabled: !loggedIn,
                     ),
                     MenuPill(
                       icon: Icons.timer_rounded,

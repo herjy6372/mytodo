@@ -26,6 +26,7 @@ import 'screens/timer_screen.dart';
 import 'screens/todo_list_screen.dart';
 import 'screens/weekly_summary_screen.dart';
 import 'screens/world_clock_screen.dart';
+import 'services/alarm_ring_service.dart';
 import 'services/daily_notification_service.dart';
 import 'services/notification_service.dart';
 import 'services/sync_service.dart';
@@ -87,13 +88,12 @@ Future<void> main() async {
   // 홈 화면 위젯 연결 (Android). 위젯을 누르면 해당 화면으로 이동.
   await WidgetService.init(navigatorKey, (screen) {
     final loggedIn = AuthRepository.instance.isLoggedIn;
-    final pro = loggedIn && ProfileRepository.instance.role.canUsePro;
     final Widget? page = switch (screen) {
       'todo' when loggedIn => const TodoListScreen(),
       'calendar' when loggedIn => const CalendarScreen(),
       'graph' when loggedIn => const GraphScreen(),
-      'mood' when pro => const MoodScreen(),
-      'ledger' when pro => const LedgerScreen(),
+      'mood' when loggedIn => const MoodScreen(),
+      'ledger' when loggedIn => const LedgerScreen(),
       'memo' => const MemoScreen(),
       'memo_new' => const MemoEditScreen(),
       'timer' => const TimerScreen(),
@@ -106,14 +106,19 @@ Future<void> main() async {
     }
   });
 
-  // 알림 탭 핸들러: 주간 요약 알림 → WeeklySummaryScreen 이동
+  // 알림 탭 핸들러: 알람 → 알람 화면, 주간 요약 알림 → WeeklySummaryScreen 이동
   DailyNotificationService.onNotificationTap = (payload) {
-    if (payload == 'weekly_summary') {
+    if (AlarmRingService.isAlarmPayload(payload)) {
+      AlarmRingService.instance.open(payload);
+    } else if (payload == 'weekly_summary') {
       navigatorKey.currentState?.push(
         MaterialPageRoute(builder: (_) => const WeeklySummaryScreen()),
       );
     }
   };
+
+  // 알람 알림으로 앱이 열렸으면 알람 화면 표시 + 앱이 열려 있을 때 알람 시각 감시
+  await AlarmRingService.instance.init(navigatorKey);
 }
 
 class MyTodoApp extends StatefulWidget {
@@ -146,6 +151,7 @@ class _MyTodoAppState extends State<MyTodoApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       TodoRepository.instance.reload();
       WidgetService.publishAll();
+      AlarmRingService.instance.onResume();
     }
   }
 
@@ -165,11 +171,8 @@ class _MyTodoAppState extends State<MyTodoApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final canUseCustomTheme =
-        _auth.isLoggedIn && _profile.role.canUseAnimalTheme;
-    final choice = canUseCustomTheme ? _theme.choice : AppThemeChoice.system;
-    final effectiveThemeMode =
-        canUseCustomTheme ? _theme.themeMode : _theme.displayMode.themeMode;
+    final choice = _theme.choice;
+    final effectiveThemeMode = _theme.themeMode;
     final ThemeData light;
     final ThemeData dark;
     switch (choice) {
@@ -191,7 +194,7 @@ class _MyTodoAppState extends State<MyTodoApp> with WidgetsBindingObserver {
     }
     return MaterialApp(
       navigatorKey: widget.navigatorKey,
-      title: '나의 할 일(Beta)',
+      title: '나의 할 일',
       debugShowCheckedModeBanner: false,
       theme: light,
       darkTheme: dark,

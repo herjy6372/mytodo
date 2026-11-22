@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// 사용자 등급. 새로운 권한이 추가되면 enum 에 명시적으로 표현합니다.
 ///
 /// 기능 접근 권한 요약:
-///   normal  → 할일·그래프·기본설정·언어
-///   pro     → normal + 기분·가계부·타이머·세계시각·동물테마 (클라우드 동기화 제외)
+///   normal  → 할일·그래프·기분·가계부·타이머·세계시각·테마·언어
+///   pro     → normal 과 동일 (클라우드 동기화 제외)
 ///   beta    → pro  + 클라우드 동기화
 ///   admin   → 모든 기능
 ///   student → normal 과 동일 (만 14세 미만, Beta·Pro 부여 불가)
@@ -32,7 +32,7 @@ enum UserRole {
   /// 클라우드 동기화 — Beta·Admin 전용 (Pro 는 제외).
   bool get canSync => this == UserRole.beta || this == UserRole.admin;
 
-  /// Pro 기능 (기분·가계부·타이머·세계시각·동물테마) — Pro·Beta·Admin.
+  /// Pro 등급 여부 — Pro·Beta·Admin. (기분·가계부·테마는 모든 등급에 개방)
   bool get canUsePro =>
       this == UserRole.pro ||
       this == UserRole.beta ||
@@ -40,9 +40,6 @@ enum UserRole {
 
   /// Beta 전용 기능 — Beta·Admin.
   bool get canUseBeta => this == UserRole.beta || this == UserRole.admin;
-
-  /// 동물 테마 (고양이·강아지) — Pro·Beta·Admin.
-  bool get canUseAnimalTheme => canUsePro;
 
   /// 공지/업데이트 내역 조회 가능 여부 (모든 등급 가능).
   bool get canViewAnnouncements => true;

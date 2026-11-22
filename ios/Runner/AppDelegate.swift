@@ -1,3 +1,4 @@
+import AVFoundation
 import Flutter
 import UIKit
 import flutter_local_notifications
@@ -41,5 +42,40 @@ import flutter_local_notifications
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "AlarmSound") {
+      let channel = FlutterMethodChannel(
+        name: "mytodo/alarm_sound", binaryMessenger: registrar.messenger())
+      channel.setMethodCallHandler { [weak self] call, result in
+        switch call.method {
+        case "start": self?.startAlarmSound(); result(nil)
+        case "stop": self?.stopAlarmSound(); result(nil)
+        default: result(FlutterMethodNotImplemented)
+        }
+      }
+    }
+  }
+
+  // MARK: - 알람 화면 소리
+
+  private var alarmPlayer: AVAudioPlayer?
+
+  /// 무음 스위치와 관계없이 알람음을 반복 재생합니다 (멈출 때까지).
+  private func startAlarmSound() {
+    stopAlarmSound()
+    guard let url = Bundle.main.url(
+      forResource: "alarm", withExtension: "wav",
+      subdirectory: "Frameworks/App.framework/flutter_assets/assets/sounds")
+    else { return }
+    try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+    try? AVAudioSession.sharedInstance().setActive(true)
+    alarmPlayer = try? AVAudioPlayer(contentsOf: url)
+    alarmPlayer?.numberOfLoops = -1
+    alarmPlayer?.play()
+  }
+
+  private func stopAlarmSound() {
+    alarmPlayer?.stop()
+    alarmPlayer = nil
+    try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
   }
 }

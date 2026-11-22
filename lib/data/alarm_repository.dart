@@ -117,7 +117,8 @@ class AlarmRepository extends ChangeNotifier {
 
   // ── 예약 ───────────────────────────────────────────────────────────
 
-  /// 알람 하나당 최대 8개 알림 ID: 요일별 7개(1~7) + 한 번 울림(0).
+  /// 알람 하나당 알림 ID: 요일별 7개(1~7) + 한 번/매일(0),
+  /// iOS 후속 알림은 같은 슬롯 + 10.
   static int _notifId(String alarmId, int slot) =>
       ('alarm_${alarmId}_$slot').hashCode & 0x7fffffff;
 
@@ -125,7 +126,49 @@ class AlarmRepository extends ChangeNotifier {
     final plugin = NotificationService.instance.plugin;
     for (var slot = 0; slot <= 7; slot++) {
       await plugin.cancel(_notifId(alarmId, slot));
+      await plugin.cancel(_notifId(alarmId, slot + 10));
     }
+  }
+
+  Alarm? byId(String id) {
+    for (final a in _alarms) {
+      if (a.id == id) return a;
+    }
+    return null;
+  }
+
+  /// 알람이 울린 뒤 정리: 울리는 알림을 지우고, 한 번 알람은 끄고,
+  /// 반복 알람은 다음 시각으로 다시 예약합니다.
+  Future<void> finishRing(String id) async {
+    final alarm = byId(id);
+    if (alarm == null) return;
+    if (alarm.weekdays.isEmpty) {
+      await setEnabled(id, false);
+    } else {
+      await _schedule(alarm);
+    }
+  }
+
+  /// 가장 최근에 울렸어야 할 시각 (지금 이전). 알람 화면의 남은 시간 계산용.
+  DateTime lastFireTime(Alarm alarm) {
+    final now = DateTime.now();
+    var t = DateTime(now.year, now.month, now.day, alarm.hour, alarm.minute);
+    if (t.isAfter(now)) t = t.subtract(const Duration(days: 1));
+    return t;
+  }
+
+  /// 앞으로 울릴 시각 (켜진 알람만). 앱이 열려 있을 때 알람 화면을 띄우는 데 사용.
+  DateTime? nextFireTime(Alarm alarm) {
+    if (!alarm.enabled) return null;
+    if (alarm.weekdays.isEmpty || alarm.weekdays.length == 7) {
+      return _nextTime(alarm.hour, alarm.minute);
+    }
+    tz.TZDateTime? best;
+    for (final d in alarm.weekdays) {
+      final t = _nextWeekday(d, alarm.hour, alarm.minute);
+      if (best == null || t.isBefore(best)) best = t;
+    }
+    return best;
   }
 
   Future<void> _schedule(Alarm alarm) async {
@@ -133,10 +176,9 @@ class AlarmRepository extends ChangeNotifier {
     await _cancel(alarm.id);
     if (!alarm.enabled) return;
 
-    final details = NotificationService.alarmDetails();
     final body = alarm.type == AlarmType.custom
-        ? '알림을 눌러 알람을 끄세요.'
-        : '${alarm.type.label} · 알림을 눌러 알람을 끄세요.';
+        ? '알림을 눌러 알람을 끄거나 미루세요.'
+        : '${alarm.type.label} · 알림을 눌러 알람을 끄거나 미루세요.';
 
     if (alarm.weekdays.isEmpty) {
       final when = _nextTime(alarm.hour, alarm.minute);
@@ -145,72 +187,52 @@ class AlarmRepository extends ChangeNotifier {
         await _save();
       }
       await _zoned(
-        _notifId(alarm.id, 0),
-        alarm.title,
+        alarm,
+        0,
         body,
         when,
-        details,
         null,
-        alarm.id,
       );
       return;
     }
     if (alarm.weekdays.length == 7) {
       // 매일 → 시각만 맞춰 반복 (알림 1개로 충분)
       await _zoned(
-        _notifId(alarm.id, 0),
-        alarm.title,
+        alarm,
+        0,
         body,
         _nextTime(alarm.hour, alarm.minute),
-        details,
         DateTimeComponents.time,
-        alarm.id,
       );
       return;
     }
     for (final day in alarm.weekdays) {
       await _zoned(
-        _notifId(alarm.id, day),
-        alarm.title,
+        alarm,
+        day,
         body,
         _nextWeekday(day, alarm.hour, alarm.minute),
-        details,
         DateTimeComponents.dayOfWeekAndTime,
-        alarm.id,
       );
     }
   }
 
   Future<void> _zoned(
-    int id,
-    String title,
+    Alarm alarm,
+    int slot,
     String body,
     tz.TZDateTime when,
-    NotificationDetails details,
     DateTimeComponents? repeat,
-    String payload,
-  ) async {
-    final plugin = NotificationService.instance.plugin;
-    Future<void> go(AndroidScheduleMode mode) => plugin.zonedSchedule(
-          id,
-          title,
-          body,
-          when,
-          details,
-          androidScheduleMode: mode,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents: repeat,
-          payload: 'alarm:$payload',
-        );
-    try {
-      // 알람 시계 모드: 절전 중에도 정확한 시각에 울림
-      await go(AndroidScheduleMode.alarmClock);
-    } catch (e) {
-      debugPrint('정확한 알람 예약 실패, 일반 예약으로 재시도: $e');
-      await go(AndroidScheduleMode.inexactAllowWhileIdle);
-    }
-  }
+  ) =>
+      NotificationService.instance.scheduleAlarm(
+        id: _notifId(alarm.id, slot),
+        followUpId: _notifId(alarm.id, slot + 10),
+        title: alarm.title,
+        body: body,
+        when: when,
+        repeat: repeat,
+        payload: 'alarm:${alarm.id}',
+      );
 
   /// 오늘 해당 시각이 지났으면 내일.
   static tz.TZDateTime _nextTime(int hour, int minute) {

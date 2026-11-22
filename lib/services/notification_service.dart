@@ -9,6 +9,7 @@ import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../models/todo.dart';
+import 'daily_notification_service.dart';
 
 /// 로컬 푸시 알림 서비스.
 /// 할 일의 [dueDate] 시간이 되면 사용자에게 알림을 보냅니다.
@@ -27,24 +28,31 @@ class NotificationService {
   /// iOS 알람음 파일 이름 (Library/Sounds 에 복사해 사용).
   static const iosAlarmSound = 'alarm.wav';
 
+  /// 알람이 울리는 시간. 이 시간 동안 소리가 나고, 지나면 알림 소리가 멈춥니다.
+  static const ringDuration = Duration(minutes: 1);
+
+  /// iOS 알림 소리는 최대 30초라서, 30초 뒤 한 번 더 울려 1분을 채웁니다.
+  static const iosFollowUpDelay = Duration(seconds: 30);
+
   /// 알람음으로 울리는 알림 설정.
-  /// Android: 시스템 알람음 + 알람 볼륨 + 끌 때까지 반복.
-  /// iOS: 앱에 포함된 30초 알람음.
+  /// Android: 앱에 포함된 알람음 + 알람 볼륨 + 1분간 반복 + 잠금 화면에서 알람 화면 열기.
+  /// iOS: 앱에 포함된 알람음 (30초, 후속 알림과 합쳐 1분).
   static NotificationDetails alarmDetails() {
     return NotificationDetails(
       android: AndroidNotificationDetails(
-        'alarm_channel_v1',
+        'alarm_channel_v2',
         '알람',
         channelDescription: '설정한 시간에 알람음으로 알려드립니다.',
         importance: Importance.max,
         priority: Priority.max,
         category: AndroidNotificationCategory.alarm,
         playSound: true,
-        sound: const UriAndroidNotificationSound(
-            'content://settings/system/alarm_alert'),
+        sound: const RawResourceAndroidNotificationSound('alarm'),
         audioAttributesUsage: AudioAttributesUsage.alarm,
         enableVibration: true,
-        // FLAG_INSISTENT(4): 사용자가 알림을 확인할 때까지 소리 반복
+        fullScreenIntent: true,
+        timeoutAfter: ringDuration.inMilliseconds,
+        // FLAG_INSISTENT(4): 알림이 남아 있는 동안 소리 반복
         additionalFlags: Int32List.fromList(const [4]),
         visibility: NotificationVisibility.public,
         ticker: '알람',
@@ -57,6 +65,45 @@ class NotificationService {
         sound: iosAlarmSound,
       ),
     );
+  }
+
+  /// 알람 알림 예약. iOS 는 [followUpId] 로 30초 뒤 후속 알림을 함께 예약합니다.
+  Future<void> scheduleAlarm({
+    required int id,
+    required int followUpId,
+    required String title,
+    required String body,
+    required tz.TZDateTime when,
+    required String payload,
+    DateTimeComponents? repeat,
+  }) async {
+    await init();
+    final details = alarmDetails();
+    Future<void> go(int nid, tz.TZDateTime at, AndroidScheduleMode mode) =>
+        _plugin.zonedSchedule(
+          nid,
+          title,
+          body,
+          at,
+          details,
+          androidScheduleMode: mode,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: repeat,
+          payload: payload,
+        );
+    Future<void> both(int nid, tz.TZDateTime at) async {
+      try {
+        // 알람 시계 모드: 절전 중에도 정확한 시각에 울림
+        await go(nid, at, AndroidScheduleMode.alarmClock);
+      } catch (e) {
+        debugPrint('정확한 알람 예약 실패, 일반 예약으로 재시도: $e');
+        await go(nid, at, AndroidScheduleMode.inexactAllowWhileIdle);
+      }
+    }
+
+    await both(id, when);
+    if (Platform.isIOS) await both(followUpId, when.add(iosFollowUpDelay));
   }
 
   static const _todoDetails = NotificationDetails(
@@ -108,8 +155,19 @@ class NotificationService {
 
     await _plugin.initialize(
       const InitializationSettings(android: androidInit, iOS: iosInit),
+      onDidReceiveNotificationResponse: (response) {
+        final payload = response.payload;
+        if (payload != null) DailyNotificationService.onNotificationTap?.call(payload);
+      },
     );
     await _installIosAlarmSound();
+    if (Platform.isAndroid) {
+      // 소리가 나지 않던 예전 알람 채널 정리 (채널 소리는 만든 뒤 바꿀 수 없음)
+      await _plugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.deleteNotificationChannel('alarm_channel_v1');
+    }
     _initialized = true;
   }
 
@@ -144,22 +202,34 @@ class NotificationService {
   Future<void> scheduleTodo(Todo todo) async {
     await init();
     await _plugin.cancel(_idOf(todo.id));
+    await _plugin.cancel(_followUpIdOf(todo.id));
     if (todo.isDone) return;
     if (todo.dueDate.isBefore(DateTime.now())) return;
 
     final scheduled = tz.TZDateTime.from(todo.dueDate, tz.local);
-    final details = todo.alarm ? alarmDetails() : _todoDetails;
     final body = StringBuffer();
     if (todo.place.isNotEmpty) body.write('${todo.place} · ');
     body.write(todo.category.label);
 
+    if (todo.alarm) {
+      await scheduleAlarm(
+        id: _idOf(todo.id),
+        followUpId: _followUpIdOf(todo.id),
+        title: '⏰ ${todo.title}',
+        body: body.toString(),
+        when: scheduled,
+        payload: 'todoalarm:${todo.id}',
+      );
+      return;
+    }
+
     try {
       await _plugin.zonedSchedule(
         _idOf(todo.id),
-        todo.alarm ? '⏰ ${todo.title}' : '${todo.title} 시간이에요',
+        '${todo.title} 시간이에요',
         body.toString(),
         scheduled,
-        details,
+        _todoDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
@@ -170,10 +240,10 @@ class NotificationService {
       debugPrint('정확 알람 예약 실패, inexact로 재시도: $e');
       await _plugin.zonedSchedule(
         _idOf(todo.id),
-        todo.alarm ? '⏰ ${todo.title}' : '${todo.title} 시간이에요',
+        '${todo.title} 시간이에요',
         body.toString(),
         scheduled,
-        details,
+        _todoDetails,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
@@ -185,6 +255,7 @@ class NotificationService {
   Future<void> cancelTodo(String todoId) async {
     await init();
     await _plugin.cancel(_idOf(todoId));
+    await _plugin.cancel(_followUpIdOf(todoId));
   }
 
   Future<void> cancelAll() async {
@@ -194,4 +265,7 @@ class NotificationService {
 
   /// String id 를 안정적인 32-bit int 로 변환.
   int _idOf(String id) => id.hashCode & 0x7fffffff;
+
+  /// iOS 알람 후속 알림 id.
+  int _followUpIdOf(String id) => '${id}_follow'.hashCode & 0x7fffffff;
 }
