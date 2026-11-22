@@ -20,7 +20,10 @@ import '../models/mood.dart';
 import '../models/todo.dart';
 import 'notification_service.dart';
 
-/// Android 홈 화면 위젯에 앱 데이터를 전달합니다.
+/// 홈 화면 위젯(Android·iOS)에 앱 데이터를 전달합니다.
+///
+/// iOS 는 App Group([appGroupId])으로 데이터를 공유하고, 위젯 버튼은
+/// 위젯 쪽(App Intent)에서 처리한 뒤 대기열에 남겨 두면 앱이 열릴 때 반영합니다.
 ///
 /// 날짜가 바뀌어도 앱을 열지 않고 위젯이 "오늘"을 스스로 계산할 수 있도록
 /// 날짜별 원본 데이터를 넘기고, 오늘·이번 주·연간 집계는 Android 쪽에서 합니다.
@@ -49,12 +52,28 @@ class WidgetService {
     '$_pkg.LedgerWidgetProvider',
   ];
 
+  /// iOS WidgetKit 위젯 종류(kind). ios/MyTodoWidgets 와 같아야 합니다.
+  static const iosKinds = <String>[
+    'TodoWidget',
+    'DailyDoneWidget',
+    'YearlyWidget',
+    'MoodWidget',
+    'LedgerWidget',
+    'MemoWidget',
+    'TimerWidget',
+    'WorldClockWidget',
+    'WorldClockDualWidget',
+  ];
+  static const appGroupId = 'group.com.example.mytodo';
+
   static const _timerProvider = '$_pkg.TimerWidgetProvider';
   static const _timerNotifId = 0x7A11E5;
   static const _timerEndKey = 'widget_timer_end_ms';
   static const _timerTotalKey = 'widget_timer_total_s';
 
-  static bool get _supported => !kIsWeb && Platform.isAndroid;
+  static bool get _isAndroid => !kIsWeb && Platform.isAndroid;
+  static bool get _isIOS => !kIsWeb && Platform.isIOS;
+  static bool get _supported => _isAndroid || _isIOS;
 
   static Timer? _debounce;
 
@@ -62,7 +81,11 @@ class WidgetService {
   static Future<void> init(GlobalKey<NavigatorState> navigatorKey,
       void Function(String screen) openScreen) async {
     if (!_supported) return;
-    await HomeWidget.registerInteractivityCallback(widgetBackgroundCallback);
+    if (_isIOS) {
+      await HomeWidget.setAppGroupId(appGroupId);
+    } else {
+      await HomeWidget.registerInteractivityCallback(widgetBackgroundCallback);
+    }
 
     void schedule() {
       _debounce?.cancel();
@@ -93,6 +116,7 @@ class WidgetService {
   static Future<void> publishAll() async {
     if (!_supported) return;
     try {
+      if (_isIOS) await _applyIosPendingActions();
       final prefs = await SharedPreferences.getInstance();
       await _publishFromPrefs(prefs);
     } catch (e) {
@@ -191,11 +215,20 @@ class WidgetService {
     await _save('clock_sub_tz', subTz);
     await _save('clock_sub_name', nameOf(subTz));
 
-    // ── 타이머
-    final end = prefs.getInt(_timerEndKey) ?? 0;
-    await _save('timer_end_ms',
-        end > DateTime.now().millisecondsSinceEpoch ? end : 0);
-    await _save('timer_total_s', prefs.getInt(_timerTotalKey) ?? 0);
+    // ── 타이머 (iOS 는 위젯이 직접 관리하므로 덮어쓰지 않음)
+    if (!_isIOS) {
+      final end = prefs.getInt(_timerEndKey) ?? 0;
+      await _save('timer_end_ms',
+          end > DateTime.now().millisecondsSinceEpoch ? end : 0);
+      await _save('timer_total_s', prefs.getInt(_timerTotalKey) ?? 0);
+    }
+
+    if (_isIOS) {
+      for (final k in iosKinds) {
+        await HomeWidget.updateWidget(iOSName: k);
+      }
+      return;
+    }
 
     for (final p in providers) {
       await HomeWidget.updateWidget(qualifiedAndroidName: p);
@@ -211,6 +244,23 @@ class WidgetService {
         await HomeWidget.scheduleWidgetUpdates(midnights,
             qualifiedAndroidName: p);
       } catch (_) {/* 위젯이 아직 추가되지 않은 경우 */}
+    }
+  }
+
+  /// iOS 위젯에서 누른 할 일 체크를 실제 데이터(및 동기화)에 반영.
+  static Future<void> _applyIosPendingActions() async {
+    final raw = await HomeWidget.getWidgetData<String>('pending_toggles');
+    if (raw == null || raw.isEmpty || raw == '[]') return;
+    await HomeWidget.saveWidgetData<String>('pending_toggles', '[]');
+    try {
+      final ids = (jsonDecode(raw) as List).cast<String>();
+      for (final id in ids) {
+        if (TodoRepository.instance.todos.any((t) => t.id == id)) {
+          await TodoRepository.instance.toggleDone(id);
+        }
+      }
+    } catch (e) {
+      debugPrint('위젯 체크 반영 실패: $e');
     }
   }
 

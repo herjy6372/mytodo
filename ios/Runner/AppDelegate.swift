@@ -18,7 +18,25 @@ import flutter_local_notifications
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
 
+    installWidgetAlarmSound()
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  /// 위젯 타이머 알림이 알람음을 쓸 수 있도록 App Group 의 Library/Sounds 에 복사합니다.
+  private func installWidgetAlarmSound() {
+    guard
+      let group = FileManager.default.containerURL(
+        forSecurityApplicationGroupIdentifier: "group.com.example.mytodo"),
+      let source = Bundle.main.url(
+        forResource: "alarm", withExtension: "wav",
+        subdirectory: "Frameworks/App.framework/flutter_assets/assets/sounds")
+    else { return }
+    let dir = group.appendingPathComponent("Library/Sounds", isDirectory: true)
+    let target = dir.appendingPathComponent("alarm.wav")
+    if FileManager.default.fileExists(atPath: target.path) { return }
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    try? FileManager.default.copyItem(at: source, to: target)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {

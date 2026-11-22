@@ -1,0 +1,2 @@
+// 위젯 확장: 앱과 같은 버전 번호를 쓰기 위해 Flutter 생성 설정만 포함 (Pods 제외)
+#include "Generated.xcconfig"
