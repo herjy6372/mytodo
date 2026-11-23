@@ -17,6 +17,7 @@ import 'data/theme_repository.dart';
 import 'data/todo_repository.dart';
 import 'data/world_clock_repository.dart';
 import 'firebase_options.dart';
+import 'l10n/quill_l10n.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/home_screen.dart';
 import 'screens/calendar_screen.dart';
@@ -226,6 +227,7 @@ class _MyTodoAppState extends State<MyTodoApp> with WidgetsBindingObserver {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
+        QuillFallbackLocalizationsDelegate(),
       ],
       // 상태 표시줄 아이콘 색을 테마에 맞추고, 동물·커피 테마면 패턴 배경 적용
       builder: (ctx, child) {

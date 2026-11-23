@@ -46,6 +46,7 @@ dependencies:
   home_widget: ^0.10.0
   share_plus: ^13.3.1
   file_picker: ^13.4.1
+  flutter_quill: ^11.6.0
 
 dev_dependencies:
   flutter_test:

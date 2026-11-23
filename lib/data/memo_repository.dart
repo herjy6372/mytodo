@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/memo.dart';
+import '../models/memo_drawing.dart';
 
 /// 메모 저장소. 기기(SharedPreferences)에 저장합니다.
 class MemoRepository extends ChangeNotifier {
@@ -62,6 +63,8 @@ class MemoRepository extends ChangeNotifier {
     required String content,
     MemoColor color = MemoColor.white,
     bool pinned = false,
+    List<dynamic>? rich,
+    MemoDrawing? drawing,
   }) async {
     final now = DateTime.now();
     final memo = Memo(
@@ -70,6 +73,8 @@ class MemoRepository extends ChangeNotifier {
       content: content,
       color: color,
       pinned: pinned,
+      rich: rich,
+      drawing: drawing,
       createdAt: now,
       updatedAt: now,
     );

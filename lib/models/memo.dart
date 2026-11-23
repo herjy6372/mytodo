@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'memo_drawing.dart';
+
 /// 메모 카드 색상.
 enum MemoColor {
   white(Color(0xFFFFFFFF), Color(0xFF2B2B2B)),
@@ -26,6 +28,8 @@ class Memo {
     required this.updatedAt,
     this.color = MemoColor.white,
     this.pinned = false,
+    this.rich,
+    this.drawing,
   });
 
   final String id;
@@ -33,6 +37,13 @@ class Memo {
   String content;
   MemoColor color;
   bool pinned;
+
+  /// 서식이 들어간 본문 (Quill Delta ops). 없으면 [content] 를 그대로 사용.
+  /// [content] 에는 항상 서식 없는 글자를 함께 저장해 검색·위젯·이전 버전에서 씁니다.
+  List<dynamic>? rich;
+
+  /// 손글씨·그림 (없으면 null)
+  MemoDrawing? drawing;
   final DateTime createdAt;
   DateTime updatedAt;
 
@@ -40,8 +51,11 @@ class Memo {
   String get displayTitle {
     if (title.trim().isNotEmpty) return title.trim();
     final firstLine = content.trim().split('\n').first.trim();
-    return firstLine.isEmpty ? '제목 없음' : firstLine;
+    if (firstLine.isNotEmpty) return firstLine;
+    return hasDrawing ? '그림 메모' : '제목 없음';
   }
+
+  bool get hasDrawing => drawing != null && !drawing!.isEmpty;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -51,6 +65,8 @@ class Memo {
         'pinned': pinned,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
+        if (rich != null) 'rich': rich,
+        if (hasDrawing) 'drawing': drawing!.toJson(),
       };
 
   factory Memo.fromJson(Map<String, dynamic> json) {
@@ -65,6 +81,8 @@ class Memo {
       createdAt: created,
       updatedAt:
           DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? created,
+      rich: json['rich'] is List ? List<dynamic>.from(json['rich'] as List) : null,
+      drawing: MemoDrawing.fromJson(json['drawing']),
     );
   }
 }
