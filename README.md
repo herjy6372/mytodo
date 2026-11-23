@@ -28,6 +28,8 @@
 - **알림 · 공휴일** — 일일 알림, 한국/일본 공휴일 자동 반영
 - **등급별 권한 관리** — 관리자·베타·프로·학생·일반 5단계 접근 권한
 - **다국어 · 테마** — 5개 언어, 시스템·고양이·강아지·기린·커피 테마
+- **보기 편하게** — 큰 글씨 모드(기본·크게·아주 크게), 홈 화면 메뉴 켜고 끄기·순서 바꾸기
+- **삭제 되돌리기 · 백업 파일** — 지운 기록 바로 되살리기, 기록을 JSON 파일로 내보내고 불러오기
 
 ## 기술 스택
 
@@ -37,6 +39,9 @@
 | 인증 / DB | Firebase Auth (Google Sign-In), Cloud Firestore |
 | 로컬 저장 / 알림 | SharedPreferences, flutter_local_notifications |
 | UI | table_calendar, fl_chart |
+| 홈 화면 위젯 | home_widget (Android RemoteViews, iOS WidgetKit) |
+| 백업 파일 | share_plus, file_picker |
+| 빌드 · 보안 | R8 코드 축소·난독화, Dart 난독화(`--obfuscate`) |
 | 기타 | http, package_info_plus |
 
 자세한 개발 내용은 [PORTFOLIO.md](PORTFOLIO.md)에 정리되어 있습니다.
