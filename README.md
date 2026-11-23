@@ -26,7 +26,7 @@
 - **캘린더 · 통계** — 날짜별 일정 보기, 완료율과 카테고리 분포 그래프
 - **가계부 · 기분 기록** — 수입/지출 통계, 날짜별 기분 로그
 - **알람** — 1분간 울리는 알람 화면, 1·5·10·30분 다시 울림
-- **메모 · 홈 화면 위젯** — 색상 메모, Android/iOS 홈 화면 위젯
+- **메모 · 홈 화면 위젯** — 글 서식(크기·굵게·밑줄·정렬)과 손글씨·그림·글상자를 담는 색상 메모, Android/iOS 홈 화면 위젯
 - **타이머 · 세계시각** — 집중 타이머, 여러 도시 시각 동시 조회
 - **클라우드 동기화** (Beta) — Google 로그인 + Firestore 백업/복원
 - **알림 · 공휴일** — 일일 알림, 한국/일본 공휴일 자동 반영
@@ -42,7 +42,7 @@
 | 언어 / 프레임워크 | Dart, Flutter |
 | 인증 / DB | Firebase Auth (Google Sign-In), Cloud Firestore |
 | 로컬 저장 / 알림 | SharedPreferences, flutter_local_notifications |
-| UI | table_calendar, fl_chart |
+| UI | table_calendar, fl_chart, flutter_quill (메모 서식) |
 | 홈 화면 위젯 | home_widget (Android RemoteViews, iOS WidgetKit) |
 | 백업 파일 | share_plus, file_picker |
 | 빌드 · 보안 | R8 코드 축소·난독화, Dart 난독화(`--obfuscate`) |
