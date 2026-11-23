@@ -67,6 +67,12 @@ class WorldClockRepository extends ChangeNotifier {
       .whereType<WorldCity>()
       .toList();
 
+  /// 백업 복원 후 저장된 도시 목록을 다시 읽습니다.
+  Future<void> reload() async {
+    _loaded = false;
+    await load();
+  }
+
   Future<void> load() async {
     if (_loaded) return;
     final prefs = await SharedPreferences.getInstance();

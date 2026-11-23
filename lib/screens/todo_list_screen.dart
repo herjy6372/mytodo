@@ -4,6 +4,7 @@ import '../data/todo_repository.dart';
 import '../models/todo.dart';
 import '../widgets/rounded_todo_tile.dart';
 import 'todo_edit_screen.dart';
+import '../widgets/undo_snackbar.dart';
 
 /// 할 일 목록 화면.
 /// 카테고리 필터(전체/업무/공부/...)를 둥근 칩으로 제공하며,
@@ -32,6 +33,13 @@ class _TodoListScreenState extends State<TodoListScreen> {
   }
 
   void _onChange() => setState(() {});
+
+  /// 할 일을 지우고, 6초 동안 되돌리기 안내를 보여줍니다.
+  Future<void> _deleteWithUndo(Todo t) async {
+    final messenger = ScaffoldMessenger.of(context);
+    await _repo.remove(t.id);
+    showUndoSnackBar(messenger, '"${t.title}" 삭제됨', () => _repo.restore(t));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +72,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                             todo: t,
                             onToggle: () => _repo.toggleDone(t.id),
                             onTap: () => _openEdit(todo: t),
-                            onDelete: () => _repo.remove(t.id),
+                            onDelete: () => _deleteWithUndo(t),
                           ),
                         ),
                       ),

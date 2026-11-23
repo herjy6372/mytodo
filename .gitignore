@@ -58,3 +58,6 @@ firebase-debug.log
 # Operator-specific config (contains personal email)
 lib/config/private_config.dart
 firestore.rules
+
+# Dart 난독화 심볼 (비정상 종료 스택 해독용, 커밋하지 않음)
+/symbols/

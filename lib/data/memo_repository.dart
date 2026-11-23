@@ -26,6 +26,13 @@ class MemoRepository extends ChangeNotifier {
     return list;
   }
 
+  /// 백업 복원 후 저장된 데이터를 다시 읽습니다.
+  Future<void> reload() async {
+    _loaded = false;
+    _memos.clear();
+    await load();
+  }
+
   Future<void> load() async {
     if (_loaded) return;
     final prefs = await SharedPreferences.getInstance();
@@ -85,6 +92,14 @@ class MemoRepository extends ChangeNotifier {
     final i = _memos.indexWhere((m) => m.id == id);
     if (i == -1) return;
     _memos[i].pinned = !_memos[i].pinned;
+    await _save();
+    notifyListeners();
+  }
+
+  /// 삭제를 되돌립니다 (같은 id 로 다시 넣음).
+  Future<void> restore(Memo item) async {
+    if (_memos.any((e) => e.id == item.id)) return;
+    _memos.add(item);
     await _save();
     notifyListeners();
   }

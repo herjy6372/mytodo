@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../data/todo_repository.dart';
 import '../models/todo.dart';
+import '../widgets/undo_snackbar.dart';
 
 /// 할 일 추가/편집 화면.
 class TodoEditScreen extends StatefulWidget {
@@ -115,7 +116,7 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
           borderRadius: BorderRadius.circular(24),
         ),
         title: const Text('삭제하시겠어요?'),
-        content: const Text('한 번 삭제하면 되돌릴 수 없습니다.'),
+        content: const Text('삭제한 뒤 잠시 동안 되돌릴 수 있어요.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -128,8 +129,12 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
         ],
       ),
     );
-    if (ok != true) return;
-    await TodoRepository.instance.remove(widget.todo!.id);
+    if (ok != true || !mounted) return;
+    final todo = widget.todo!;
+    final messenger = ScaffoldMessenger.of(context);
+    await TodoRepository.instance.remove(todo.id);
+    showUndoSnackBar(messenger, '"${todo.title}" 삭제됨',
+        () => TodoRepository.instance.restore(todo));
     if (!mounted) return;
     Navigator.of(context).pop(true);
   }

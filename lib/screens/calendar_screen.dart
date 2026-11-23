@@ -11,6 +11,7 @@ import '../services/japanese_holiday_service.dart';
 import '../services/korean_holiday_service.dart';
 import '../widgets/rounded_todo_tile.dart';
 import 'todo_edit_screen.dart';
+import '../widgets/undo_snackbar.dart';
 
 /// 날짜형 (캘린더) 화면.
 class CalendarScreen extends StatefulWidget {
@@ -55,6 +56,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void _onChange() => setState(() {});
 
   List<Todo> _eventsForDay(DateTime day) => _repo.forDate(day);
+
+  /// 할 일을 지우고, 6초 동안 되돌리기 안내를 보여줍니다.
+  Future<void> _deleteWithUndo(Todo t) async {
+    final messenger = ScaffoldMessenger.of(context);
+    await _repo.remove(t.id);
+    showUndoSnackBar(messenger, '"${t.title}" 삭제됨', () => _repo.restore(t));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -276,7 +284,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               builder: (_) => TodoEditScreen(todo: t),
                             ),
                           ),
-                          onDelete: () => _repo.remove(t.id),
+                          onDelete: () => _deleteWithUndo(t),
                         );
                       },
                     ),

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../data/mood_repository.dart';
 import '../models/mood.dart';
+import '../widgets/undo_snackbar.dart';
 
 class MoodScreen extends StatefulWidget {
   const MoodScreen({super.key});
@@ -241,8 +242,12 @@ class _MoodEditScreenState extends State<MoodEditScreen> {
         ],
       ),
     );
-    if (ok != true) return;
-    await MoodRepository.instance.remove(widget.entry!.id);
+    if (ok != true || !mounted) return;
+    final entry = widget.entry!;
+    final messenger = ScaffoldMessenger.of(context);
+    await MoodRepository.instance.remove(entry.id);
+    showUndoSnackBar(messenger, '기분 기록 삭제됨',
+        () => MoodRepository.instance.restore(entry));
     if (!mounted) return;
     Navigator.of(context).pop();
   }

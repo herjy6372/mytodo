@@ -2,7 +2,7 @@ name: mytodo
 description: "나의 할일에 대해 작성합니다."
 publish_to: 'none'
 
-version: 1.6.1+39
+version: 1.6.2+40
 
 environment:
   sdk: ^3.11.5
@@ -44,6 +44,8 @@ dependencies:
   # 일본 공휴일 (오프라인)
   holiday_jp: ^0.0.8
   home_widget: ^0.10.0
+  share_plus: ^13.3.1
+  file_picker: ^13.4.1
 
 dev_dependencies:
   flutter_test:

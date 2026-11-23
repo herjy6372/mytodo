@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../data/memo_repository.dart';
 import '../models/memo.dart';
+import '../widgets/undo_snackbar.dart';
 
 /// 메모 목록 화면.
 class MemoScreen extends StatefulWidget {
@@ -306,7 +307,7 @@ class _MemoEditScreenState extends State<MemoEditScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('메모 삭제'),
-        content: const Text('이 메모를 삭제할까요? 삭제한 메모는 되돌릴 수 없어요.'),
+        content: const Text('이 메모를 삭제할까요? 삭제한 뒤 잠시 동안 되돌릴 수 있어요.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -319,7 +320,12 @@ class _MemoEditScreenState extends State<MemoEditScreen> {
     );
     if (ok != true || !mounted) return;
     _deleted = true;
-    if (widget.memo != null) await _repo.remove(widget.memo!.id);
+    final memo = widget.memo;
+    if (memo != null) {
+      final messenger = ScaffoldMessenger.of(context);
+      await _repo.remove(memo.id);
+      showUndoSnackBar(messenger, '메모 삭제됨', () => _repo.restore(memo));
+    }
     if (mounted) Navigator.of(context).pop();
   }
 

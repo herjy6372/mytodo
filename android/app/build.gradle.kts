@@ -67,9 +67,14 @@ android {
                 // key.properties 가 없으면 디버그 키로 폴백 (개발 편의)
                 signingConfigs.getByName("debug")
             }
-            // Flutter 는 Dart 코드를 AOT 로 트리쉐이킹하므로 R8 은 끄는 게 안전합니다.
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // R8: 사용하지 않는 코드·리소스 제거 + Java/Kotlin 코드 난독화
+            // (Dart 코드는 `flutter build appbundle --obfuscate` 로 별도 난독화)
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
@@ -81,5 +86,7 @@ flutter {
 dependencies {
     // core library desugaring (flutter_local_notifications 요구)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // Android 15 미만에서도 전체 화면(edge-to-edge) 표시 (WindowCompat)
+    implementation("androidx.core:core-ktx:1.13.1")
 }
 

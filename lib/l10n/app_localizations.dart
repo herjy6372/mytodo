@@ -203,7 +203,7 @@ class AppLocalizations {
   );
 
   String get settingsThemeTitle    => _t('테마', 'Theme', 'テーマ', 'Tema', 'Giao diện');
-  String get settingsThemeSubtitle => _t('시스템 / 고양이 / 강아지', 'System / Cat / Dog', 'システム / 猫 / 犬', 'System / Pusa / Aso', 'Hệ thống / Mèo / Chó');
+  String get settingsThemeSubtitle => _t('시스템 / 고양이 / 강아지 / 기린 / 커피', 'System / Cat / Dog / Giraffe / Coffee', 'システム / 猫 / 犬 / キリン / コーヒー', 'System / Pusa / Aso / Giraffe / Kape', 'Hệ thống / Mèo / Chó / Hươu cao cổ / Cà phê');
 
   String get settingsLanguageTitle    => _t('언어 / Language', 'Language / 언어', '言語 / Language', 'Wika / Language', 'Ngôn ngữ / Language');
   String get settingsLanguageSubtitle => _t(
@@ -228,7 +228,7 @@ class AppLocalizations {
     'Báo lỗi · Đề xuất tính năng · Quyền riêng tư',
   );
   String get settingsManualTitle       => _t('사용설명서',  'User Guide',      '使い方ガイド',   'Gabay ng Gumagamit', 'Hướng dẫn sử dụng');
-  String get settingsManualSubtitle    => _t('등급 안내 · 기능 설명', 'Grade guide · Feature descriptions', '等級案内 · 機能説明', 'Gabay sa grade · Mga feature', 'Hướng dẫn cấp độ · Mô tả tính năng');
+  String get settingsManualSubtitle    => _t('주요 기능 설명', 'Feature guide', '機能説明', 'Gabay sa mga feature', 'Mô tả tính năng');
 
   String get settingsPrivacyTitle      => _t('개인정보 처리방침', 'Privacy Policy', 'プライバシーポリシー', 'Patakaran sa Privacy', 'Chính sách Quyền riêng tư');
   String get settingsPrivacySubtitle   => _t('수집 항목, 보관 기간, 이용 목적 안내', 'Data collection, retention & purposes', '収集項目・保存期間・利用目的の案内', 'Mga detalye ng koleksyon ng data', 'Thông tin thu thập, lưu giữ và mục đích sử dụng');

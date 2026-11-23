@@ -26,6 +26,9 @@ import 'notifications_screen.dart';
 import 'pro_request_screen.dart';
 import 'profile_edit_screen.dart';
 import 'support_screen.dart';
+import 'backup_screen.dart';
+import 'display_settings_screen.dart';
+import 'home_menu_settings_screen.dart';
 import 'theme_settings_screen.dart';
 import 'update_history_screen.dart';
 
@@ -635,6 +638,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   Divider(height: 1, color: scheme.outlineVariant),
                   _SettingTapRow(
+                    color: const Color(0xFF22B6A0),
+                    icon: Icons.format_size_rounded,
+                    title: '글자 크기',
+                    subtitle: '큰 글씨로 보기 편하게',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const DisplaySettingsScreen()),
+                    ),
+                  ),
+                  Divider(height: 1, color: scheme.outlineVariant),
+                  _SettingTapRow(
+                    color: const Color(0xFFFFA94D),
+                    icon: Icons.dashboard_customize_rounded,
+                    title: '홈 화면 메뉴',
+                    subtitle: '자주 쓰는 메뉴만 켜고 순서 바꾸기',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const HomeMenuSettingsScreen()),
+                    ),
+                  ),
+                  Divider(height: 1, color: scheme.outlineVariant),
+                  _SettingTapRow(
                     color: const Color(0xFF4F8DFF),
                     icon: Icons.language_rounded,
                     title: l.settingsLanguageTitle,
@@ -645,6 +670,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const _SectionLabel('기록 백업'),
+            const SizedBox(height: 8),
+            _SettingCard(
+              child: _SettingTapRow(
+                color: const Color(0xFF6C5CE7),
+                icon: Icons.save_alt_rounded,
+                title: '백업 파일 내보내기 · 불러오기',
+                subtitle: '휴대폰 변경·재설치 전에 기록을 파일로 저장',
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const BackupScreen()),
+                ),
               ),
             ),
             const SizedBox(height: 16),

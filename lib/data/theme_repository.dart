@@ -53,6 +53,24 @@ enum SystemDisplayMode {
   }
 }
 
+/// 글자 크기 (큰 글씨 모드). 기기 글꼴 크기에 곱해서 적용합니다.
+enum TextSizeOption {
+  normal('normal', '기본', 1.0),
+  large('large', '크게', 1.15),
+  xlarge('xlarge', '아주 크게', 1.3);
+
+  const TextSizeOption(this.code, this.label, this.scale);
+  final String code;
+  final String label;
+  final double scale;
+
+  /// 크게 이상이면 버튼·카드 테두리도 진하게 표시합니다.
+  bool get strongOutline => this != TextSizeOption.normal;
+
+  static TextSizeOption fromCode(String? code) => TextSizeOption.values
+      .firstWhere((v) => v.code == code, orElse: () => TextSizeOption.normal);
+}
+
 /// 테마 선택을 영속화하는 저장소.
 class ThemeRepository extends ChangeNotifier {
   ThemeRepository._();
@@ -60,10 +78,14 @@ class ThemeRepository extends ChangeNotifier {
 
   static const _key = 'app_theme_v1';
   static const _displayModeKey = 'app_display_mode_v1';
+  static const _textSizeKey = 'app_text_size_v1';
 
   AppThemeChoice _choice = AppThemeChoice.system;
   SystemDisplayMode _displayMode = SystemDisplayMode.auto;
+  TextSizeOption _textSize = TextSizeOption.normal;
   bool _loaded = false;
+
+  TextSizeOption get textSize => _textSize;
 
   AppThemeChoice get choice => _choice;
   SystemDisplayMode get displayMode => _displayMode;
@@ -80,6 +102,7 @@ class ThemeRepository extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _choice = AppThemeChoice.fromCode(prefs.getString(_key));
     _displayMode = SystemDisplayMode.fromCode(prefs.getString(_displayModeKey));
+    _textSize = TextSizeOption.fromCode(prefs.getString(_textSizeKey));
     _loaded = true;
     notifyListeners();
   }
@@ -98,5 +121,19 @@ class ThemeRepository extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_displayModeKey, mode.code);
     notifyListeners();
+  }
+
+  Future<void> setTextSize(TextSizeOption size) async {
+    if (_textSize == size) return;
+    _textSize = size;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_textSizeKey, size.code);
+    notifyListeners();
+  }
+
+  /// 백업 복원 후 저장된 설정을 다시 읽습니다.
+  Future<void> reload() async {
+    _loaded = false;
+    await load();
   }
 }

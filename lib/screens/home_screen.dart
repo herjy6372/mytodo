@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../data/auth_repository.dart';
+import '../data/home_menu_repository.dart';
 import '../data/parent_consent_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../data/profile_repository.dart';
@@ -14,6 +15,7 @@ import '../models/parent_consent.dart';
 import '../models/user_profile.dart';
 import '../models/todo.dart';
 import '../services/permission_service.dart';
+import '../widgets/home_menu_items.dart';
 import '../widgets/rounded_menu_button.dart';
 import 'alarm_screen.dart';
 import 'calendar_screen.dart';
@@ -52,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _repo.addListener(_onChange);
     _auth.addListener(_onAuthStateChanged);
     _profile.addListener(_onChange);
+    HomeMenuRepository.instance.addListener(_onChange);
 
     // 권한 확인 (첫 설치: 안내 다이얼로그 + 요청 / 이후: 조용히 확인)
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -68,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _repo.removeListener(_onChange);
     _auth.removeListener(_onAuthStateChanged);
     _profile.removeListener(_onChange);
+    HomeMenuRepository.instance.removeListener(_onChange);
     super.dispose();
   }
 
@@ -234,6 +238,49 @@ class _HomeScreenState extends State<HomeScreen> {
     _go(const LoginScreen());
   }
 
+
+  /// 켜 둔 메뉴를 순서대로 3개씩 묶어 둥근 메뉴 바로 만듭니다.
+  List<Widget> _menuRows(bool loggedIn) {
+    final menus = HomeMenuRepository.instance.visible;
+    final rows = <Widget>[];
+    for (var i = 0; i < menus.length; i += 3) {
+      final chunk = menus.sublist(i, (i + 3).clamp(0, menus.length));
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 12));
+      rows.add(RoundedMenuBar(
+        children: [
+          for (final m in chunk) _menuPill(m, loggedIn),
+          // 마지막 줄이 3개보다 적으면 빈 칸으로 너비를 맞춤
+          for (var k = chunk.length; k < 3; k++) const SizedBox.shrink(),
+        ],
+      ));
+    }
+    return rows;
+  }
+
+  Widget _menuPill(HomeMenu m, bool loggedIn) {
+    final info = homeMenuInfo(m);
+    // 로그인해야 쓸 수 있는 메뉴 (고객지원만 로그인 없이 열림)
+    final needsLogin = m != HomeMenu.support;
+    final Widget page = switch (m) {
+      HomeMenu.todos => const TodoListScreen(),
+      HomeMenu.calendar => const CalendarScreen(),
+      HomeMenu.graph => const GraphScreen(),
+      HomeMenu.mood => const MoodScreen(),
+      HomeMenu.ledger => const LedgerScreen(),
+      HomeMenu.timer => const TimerScreen(),
+      HomeMenu.worldClock => const WorldClockScreen(),
+      HomeMenu.memo => const MemoScreen(),
+      HomeMenu.support => const SupportScreen(),
+    };
+    return MenuPill(
+      icon: info.icon,
+      label: info.label(context),
+      color: info.color,
+      onTap: () => _go(page),
+      onDisabledTap: _promptLogin,
+      disabled: needsLogin && !loggedIn,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -456,87 +503,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   onSeeAll: loggedIn ? () => _go(const TodoListScreen()) : _promptLogin,
                 ),
                 const SizedBox(height: 20),
-                // (3) 기본 기능 메뉴 바 — 할 일 목록 / 날짜형 목록 / 그래프형 목록
-                RoundedMenuBar(
-                  children: [
-                    MenuPill(
-                      icon: Icons.checklist_rounded,
-                      label: l.menuTodos,
-                      color: const Color(0xFF6C5CE7),
-                      onTap: () => _go(const TodoListScreen()),
-                      onDisabledTap: _promptLogin,
-                      disabled: !loggedIn,
-                    ),
-                    MenuPill(
-                      icon: Icons.calendar_month_rounded,
-                      label: l.menuCalendar,
-                      color: const Color(0xFF22B6A0),
-                      onTap: () => _go(const CalendarScreen()),
-                      onDisabledTap: _promptLogin,
-                      disabled: !loggedIn,
-                    ),
-                    MenuPill(
-                      icon: Icons.bar_chart_rounded,
-                      label: l.menuGraph,
-                      color: const Color(0xFFFFA94D),
-                      onTap: () => _go(const GraphScreen()),
-                      onDisabledTap: _promptLogin,
-                      disabled: !loggedIn,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // (4) 기록 메뉴 바 — 기분 한 줄 / 가계부 / 타이머
-                RoundedMenuBar(
-                  children: [
-                    MenuPill(
-                      icon: Icons.edit_note_rounded,
-                      label: l.menuMood,
-                      color: const Color(0xFFFF8FA3),
-                      onTap: () => _go(const MoodScreen()),
-                      onDisabledTap: _promptLogin,
-                      disabled: !loggedIn,
-                    ),
-                    MenuPill(
-                      icon: Icons.account_balance_wallet_rounded,
-                      label: l.menuLedger,
-                      color: const Color(0xFF2EC4B6),
-                      onTap: () => _go(const LedgerScreen()),
-                      onDisabledTap: _promptLogin,
-                      disabled: !loggedIn,
-                    ),
-                    MenuPill(
-                      icon: Icons.timer_rounded,
-                      label: l.menuTimer,
-                      color: const Color(0xFFFFB74D),
-                      onTap: () => _go(const TimerScreen()),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // (5) 추가 메뉴 바 — 세계 시각 / 메모 / 고객지원
-                RoundedMenuBar(
-                  children: [
-                    MenuPill(
-                      icon: Icons.public_rounded,
-                      label: l.menuWorldClock,
-                      color: const Color(0xFF7B83EB),
-                      onTap: () => _go(const WorldClockScreen()),
-                    ),
-                    MenuPill(
-                      icon: Icons.sticky_note_2_rounded,
-                      label: '메모',
-                      color: const Color(0xFFF4B400),
-                      onTap: () => _go(const MemoScreen()),
-                    ),
-                    MenuPill(
-                      icon: Icons.support_agent_rounded,
-                      label: '고객지원',
-                      color: const Color(0xFF4F8DFF),
-                      onTap: () => _go(const SupportScreen()),
-                    ),
-                  ],
-                ),
+                // (3) 기능 메뉴 — 설정 → 홈 화면 메뉴에서 켜고 끄기·순서 변경
+                ..._menuRows(loggedIn),
               ],
             ),
           ),

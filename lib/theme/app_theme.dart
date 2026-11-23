@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// 앱 전체 테마. 둥근 모서리, 부드러운 색감을 기본으로 합니다.
 class AppTheme {
@@ -43,6 +44,19 @@ class AppTheme {
     return _build(scheme, scaffoldBg: scaffoldBg);
   }
 
+  /// 화면 끝까지 그릴 때(edge-to-edge) 상태 표시줄·내비게이션 바 스타일.
+  /// 바는 투명하게 두고, 아이콘 색은 밝은/어두운 테마에 맞춥니다.
+  static SystemUiOverlayStyle overlayStyle(bool isDark) =>
+      (isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark)
+          .copyWith(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarContrastEnforced: false,
+        systemNavigationBarIconBrightness:
+            isDark ? Brightness.light : Brightness.dark,
+      );
+
   static ThemeData _build(ColorScheme scheme, {required Color scaffoldBg}) {
     final isDark = scheme.brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF1F1F27) : Colors.white;
@@ -54,6 +68,8 @@ class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor: scaffoldBg,
       appBarTheme: AppBarTheme(
+        // 배경이 투명이라 Flutter 가 아이콘 색을 잘못 추측하지 않도록 직접 지정
+        systemOverlayStyle: overlayStyle(isDark),
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,

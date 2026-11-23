@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'data/auth_repository.dart';
+import 'data/home_menu_repository.dart';
 import 'data/language_repository.dart';
 import 'data/ledger_repository.dart';
 import 'data/alarm_repository.dart';
@@ -70,6 +72,7 @@ Future<void> main() async {
   await ProfileRepository.instance.init();
   await SyncService.instance.load();
   await ThemeRepository.instance.load();
+  await HomeMenuRepository.instance.load();
   await LanguageRepository.instance.load();
 
   // 할 일·기분·가계부 데이터 변경 시 일일 알림 재예약
@@ -83,6 +86,9 @@ Future<void> main() async {
   // 정기 알림 예약 (앱 시작 시 매번 최신 데이터로 재예약)
   await DailyNotificationService.instance.scheduleDailyNotifications();
 
+  // 화면 끝까지 그리기(edge-to-edge). 바 색·아이콘은 MaterialApp builder 에서 테마에 맞춤
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
   runApp(MyTodoApp(navigatorKey: navigatorKey));
 
   // 홈 화면 위젯 연결 (Android). 위젯을 누르면 해당 화면으로 이동.
@@ -94,10 +100,10 @@ Future<void> main() async {
       'graph' when loggedIn => const GraphScreen(),
       'mood' when loggedIn => const MoodScreen(),
       'ledger' when loggedIn => const LedgerScreen(),
-      'memo' => const MemoScreen(),
-      'memo_new' => const MemoEditScreen(),
-      'timer' => const TimerScreen(),
-      'worldclock' => const WorldClockScreen(),
+      'memo' when loggedIn => const MemoScreen(),
+      'memo_new' when loggedIn => const MemoEditScreen(),
+      'timer' when loggedIn => const TimerScreen(),
+      'worldclock' when loggedIn => const WorldClockScreen(),
       _ => null, // 권한이 없으면 홈 화면에 머무름
     };
     if (page != null) {
@@ -192,12 +198,20 @@ class _MyTodoAppState extends State<MyTodoApp> with WidgetsBindingObserver {
         light = AppTheme.light();
         dark = AppTheme.dark();
     }
+    // 큰 글씨 모드: 버튼·카드 테두리를 진하게 (outlineVariant → outline)
+    final textSize = _theme.textSize;
+    ThemeData strong(ThemeData t) => textSize.strongOutline
+        ? t.copyWith(
+            colorScheme:
+                t.colorScheme.copyWith(outlineVariant: t.colorScheme.outline))
+        : t;
+
     return MaterialApp(
       navigatorKey: widget.navigatorKey,
       title: '나의 할 일',
       debugShowCheckedModeBanner: false,
-      theme: light,
-      darkTheme: dark,
+      theme: strong(light),
+      darkTheme: strong(dark),
       themeMode: effectiveThemeMode,
       locale: _lang.locale,
       supportedLocales: const [
@@ -213,17 +227,24 @@ class _MyTodoAppState extends State<MyTodoApp> with WidgetsBindingObserver {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      // 동물·커피 테마일 때 패턴 배경 적용
-      builder: choice.isCustomTheme
-          ? (ctx, child) {
-              final isDark = Theme.of(ctx).brightness == Brightness.dark;
-              return PawBackground(
-                choice: choice,
-                isDark: isDark,
-                child: child!,
-              );
-            }
-          : null,
+      // 상태 표시줄 아이콘 색을 테마에 맞추고, 동물·커피 테마면 패턴 배경 적용
+      builder: (ctx, child) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        // 큰 글씨 모드: 휴대폰 글꼴 크기에 앱 배율을 곱함 (최대 2배)
+        final mq = MediaQuery.of(ctx);
+        final scale =
+            (mq.textScaler.scale(1) * textSize.scale).clamp(0.5, 2.0);
+        child = MediaQuery(
+          data: mq.copyWith(textScaler: TextScaler.linear(scale)),
+          child: child!,
+        );
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: AppTheme.overlayStyle(isDark),
+          child: choice.isCustomTheme
+              ? PawBackground(choice: choice, isDark: isDark, child: child)
+              : child,
+        );
+      },
       home: const HomeScreen(),
     );
   }

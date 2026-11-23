@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../data/ledger_repository.dart';
 import '../models/ledger.dart';
+import '../widgets/undo_snackbar.dart';
 
 class LedgerScreen extends StatefulWidget {
   const LedgerScreen({super.key});
@@ -362,8 +363,12 @@ class _LedgerEditScreenState extends State<LedgerEditScreen> {
         ],
       ),
     );
-    if (ok != true) return;
-    await LedgerRepository.instance.remove(widget.entry!.id);
+    if (ok != true || !mounted) return;
+    final entry = widget.entry!;
+    final messenger = ScaffoldMessenger.of(context);
+    await LedgerRepository.instance.remove(entry.id);
+    showUndoSnackBar(messenger, '가계부 내역 삭제됨',
+        () => LedgerRepository.instance.restore(entry));
     if (!mounted) return;
     Navigator.of(context).pop();
   }

@@ -21,6 +21,13 @@ class MoodRepository extends ChangeNotifier {
     return list;
   }
 
+  /// 백업 복원 후 저장된 데이터를 다시 읽습니다.
+  Future<void> reload() async {
+    _loaded = false;
+    _entries.clear();
+    await load();
+  }
+
   Future<void> load() async {
     if (_loaded) return;
     final prefs = await SharedPreferences.getInstance();
@@ -62,6 +69,14 @@ class MoodRepository extends ChangeNotifier {
     final i = _entries.indexWhere((e) => e.id == entry.id);
     if (i == -1) return;
     _entries[i] = entry;
+    await _save();
+    notifyListeners();
+  }
+
+  /// 삭제를 되돌립니다 (같은 id 로 다시 넣음).
+  Future<void> restore(MoodEntry item) async {
+    if (_entries.any((e) => e.id == item.id)) return;
+    _entries.add(item);
     await _save();
     notifyListeners();
   }

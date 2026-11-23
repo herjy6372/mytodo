@@ -27,6 +27,16 @@ class AlarmRepository extends ChangeNotifier {
     return list;
   }
 
+  /// 백업 복원 후 다시 읽습니다. 기존 알람 예약을 모두 지운 뒤 새로 예약합니다.
+  Future<void> reload() async {
+    for (final a in _alarms) {
+      await _cancel(a.id);
+    }
+    _alarms.clear();
+    _loaded = false;
+    await load();
+  }
+
   Future<void> load() async {
     if (_loaded) return;
     final prefs = await SharedPreferences.getInstance();

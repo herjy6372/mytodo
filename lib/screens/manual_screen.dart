@@ -100,6 +100,34 @@ class ManualScreen extends StatelessWidget {
                 '수동 백업·복원 기능도 지원합니다. 현재 테스트 중인 기능이라 '
                 '일부 사용자에게만 제공되며, 오류가 있을 수 있습니다.',
           ),
+          _FeatureCard(
+            icon: Icons.format_size_rounded,
+            color: const Color(0xFF22B6A0),
+            title: '글자 크기 (큰 글씨 모드)',
+            description: '설정 → 글자 크기에서 기본·크게·아주 크게 중에 고를 수 있어요. '
+                '크게 이상을 고르면 버튼과 카드 테두리도 진하게 보여 누를 곳을 찾기 쉬워요.',
+          ),
+          _FeatureCard(
+            icon: Icons.dashboard_customize_rounded,
+            color: const Color(0xFFFFA94D),
+            title: '홈 화면 메뉴 정리',
+            description: '설정 → 홈 화면 메뉴에서 자주 쓰는 메뉴만 켜 두고, '
+                '손잡이를 끌어 순서를 바꿀 수 있어요. 꺼 둔 메뉴의 기록은 그대로 남아요.',
+          ),
+          _FeatureCard(
+            icon: Icons.undo_rounded,
+            color: const Color(0xFF4F8DFF),
+            title: '삭제 되돌리기',
+            description: '할 일·메모·가계부·기분 기록을 지우면 화면 아래에 "되돌리기" 버튼이 '
+                '잠시 나타나요. 실수로 지웠다면 바로 눌러 되살릴 수 있어요.',
+          ),
+          _FeatureCard(
+            icon: Icons.save_alt_rounded,
+            color: const Color(0xFF6C5CE7),
+            title: '기록 백업 (파일)',
+            description: '설정 → 기록 백업에서 할 일·메모·가계부·기분·알람을 파일 하나로 내보내고, '
+                '새 휴대폰이나 다시 설치한 앱에서 불러올 수 있어요. 로그인하지 않아도 쓸 수 있어요.',
+          ),
           // ── 기타 안내 ────────────────────────────
           _SectionHeader(
             icon: Icons.info_outline_rounded,

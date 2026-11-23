@@ -20,6 +20,15 @@ class TodoRepository extends ChangeNotifier {
 
   List<Todo> get todos => List.unmodifiable(_todos);
 
+  /// 백업 복원 후 다시 읽습니다. 기존 할 일 알림을 지운 뒤 새로 예약합니다.
+  Future<void> reloadFromBackup() async {
+    for (final t in _todos) {
+      await NotificationService.instance.cancelTodo(t.id);
+    }
+    _todos.clear();
+    await reload();
+  }
+
   /// 홈 화면 위젯 등 앱 밖에서 바뀐 저장 데이터를 다시 읽어옵니다.
   Future<void> reload() async {
     final prefs = await SharedPreferences.getInstance();
@@ -117,6 +126,15 @@ class TodoRepository extends ChangeNotifier {
     await _save();
     notifyListeners();
     await NotificationService.instance.cancelTodo(id);
+  }
+
+  /// 삭제를 되돌립니다 (같은 id 로 다시 넣고 알림도 다시 예약).
+  Future<void> restore(Todo todo) async {
+    if (_todos.any((t) => t.id == todo.id)) return;
+    _todos.add(todo);
+    await _save();
+    notifyListeners();
+    if (!todo.isDone) await NotificationService.instance.scheduleTodo(todo);
   }
 
   Future<void> toggleDone(String id) async {
