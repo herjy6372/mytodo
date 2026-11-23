@@ -8,13 +8,17 @@
 
 ## 스크린샷
 
-| 홈 | 할 일 목록 | 캘린더 | 통계 |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/home.png" width="200" alt="홈 화면"> | <img src="docs/screenshots/todo_list.png" width="200" alt="할 일 목록"> | <img src="docs/screenshots/calendar.png" width="200" alt="날짜형 목록"> | <img src="docs/screenshots/graph.png" width="200" alt="그래프형 목록"> |
+| 홈 | 홈 메뉴 | 할 일 목록 |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/home.png" width="220" alt="홈 화면"> | <img src="docs/screenshots/home_menu.png" width="220" alt="홈 메뉴"> | <img src="docs/screenshots/todo_list.png" width="220" alt="할 일 목록"> |
 
-| 기분 한 줄 | 가계부 | 알람 | 고양이 테마 |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/mood.png" width="200" alt="기분 한 줄"> | <img src="docs/screenshots/ledger.png" width="200" alt="가계부"> | <img src="docs/screenshots/alarm.png" width="200" alt="알람 화면"> | <img src="docs/screenshots/theme_cat.png" width="200" alt="고양이 테마"> |
+| 캘린더 | 통계 | 기분 한 줄 |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/calendar.png" width="220" alt="날짜형 목록"> | <img src="docs/screenshots/graph.png" width="220" alt="그래프형 목록"> | <img src="docs/screenshots/mood.png" width="220" alt="기분 한 줄"> |
+
+| 가계부 | 알람 | 고양이 테마 |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/ledger.png" width="220" alt="가계부"> | <img src="docs/screenshots/alarm.png" width="220" alt="알람 화면"> | <img src="docs/screenshots/theme_cat.png" width="220" alt="고양이 테마"> |
 
 ## 주요 기능
 
@@ -28,7 +32,7 @@
 - **알림 · 공휴일** — 일일 알림, 한국/일본 공휴일 자동 반영
 - **등급별 권한 관리** — 관리자·베타·프로·학생·일반 5단계 접근 권한
 - **다국어 · 테마** — 5개 언어, 시스템·고양이·강아지·기린·커피 테마
-- **보기 편하게** — 큰 글씨 모드(기본·크게·아주 크게), 홈 화면 메뉴 켜고 끄기·순서 바꾸기
+- **보기 편하게** — 큰 글씨 모드(기본·크게·아주 크게), 대비를 높인 홈 메뉴, 홈 화면 메뉴 켜고 끄기·순서 바꾸기, 홈에서 바로 할 일 추가
 - **삭제 되돌리기 · 백업 파일** — 지운 기록 바로 되살리기, 기록을 JSON 파일로 내보내고 불러오기
 
 ## 기술 스택

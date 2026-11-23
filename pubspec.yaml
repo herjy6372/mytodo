@@ -2,7 +2,7 @@ name: mytodo
 description: "나의 할일에 대해 작성합니다."
 publish_to: 'none'
 
-version: 1.6.2+41
+version: 1.6.2+42
 
 environment:
   sdk: ^3.11.5
