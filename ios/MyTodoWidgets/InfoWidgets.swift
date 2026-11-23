@@ -154,8 +154,33 @@ struct TimerView: View {
     let entry: TimerEntry
 
     var body: some View {
+        if WidgetAuth.loggedIn {
+            timerBody
+        } else {
+            lockedBody
+        }
+    }
+
+    /// 로그인 전: 앱을 열어 로그인하도록 안내
+    private var lockedBody: some View {
+        VStack(spacing: 8) {
+            WidgetHeader(title: "타이머", trailing: "")
+            Spacer(minLength: 0)
+            Image(systemName: "lock.fill")
+                .font(.system(size: 22)).foregroundStyle(Palette.sub)
+            Text("로그인하면 타이머를 쓸 수 있어요")
+                .font(.system(size: 13, weight: .semibold)).foregroundStyle(Palette.text)
+                .multilineTextAlignment(.center)
+            Text("눌러서 앱 열기")
+                .font(.system(size: 11)).foregroundStyle(Palette.sub)
+            Spacer(minLength: 0)
+        }
+        .widgetURL(openURL("timer"))
+    }
+
+    private var timerBody: some View {
         let running = entry.end.map { $0 > entry.date } ?? false
-        VStack(spacing: 6) {
+        return VStack(spacing: 6) {
             WidgetHeader(title: "타이머", trailing: running ? "진행 중" : "")
             Spacer(minLength: 0)
             Group {

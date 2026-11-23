@@ -63,6 +63,8 @@ struct StartTimerIntent: AppIntent {
     init(minutes: Int) { self.minutes = minutes }
 
     func perform() async throws -> some IntentResult {
+        // 로그인해야 쓸 수 있음 (위젯 화면에서도 버튼을 숨기지만 한 번 더 확인)
+        guard WidgetAuth.loggedIn else { return .result() }
         let end = Date().addingTimeInterval(Double(minutes * 60))
         Store.set("timer_end_ms", String(Int64(end.timeIntervalSince1970 * 1000)))
         Store.set("timer_total_s", String(minutes * 60))
@@ -90,4 +92,9 @@ struct StopTimerIntent: AppIntent {
             .removePendingNotificationRequests(withIdentifiers: [WidgetTimer.notificationId])
         return .result()
     }
+}
+
+/// 앱이 App Group 에 기록한 로그인 여부.
+enum WidgetAuth {
+    static var loggedIn: Bool { Store.string("logged_in") == "1" }
 }

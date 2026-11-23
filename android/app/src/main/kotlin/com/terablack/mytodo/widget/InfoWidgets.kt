@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.SystemClock
+import android.view.View
 import android.widget.RemoteViews
 import com.terablack.mytodo.R
 import es.antonborri.home_widget.HomeWidgetProvider
@@ -105,8 +106,22 @@ class TimerWidgetProvider : HomeWidgetProvider() {
         val end = WidgetUtil.long(widgetData, "timer_end_ms")
         val remaining = end - System.currentTimeMillis()
         val running = end > 0 && remaining > 0
+        // 로그인해야 쓸 수 있음: 앱이 위젯 데이터에 로그인 여부를 적어 둠
+        val loggedIn = WidgetUtil.str(widgetData, "logged_in") == "1"
         appWidgetIds.forEach { id ->
             val v = RemoteViews(context.packageName, R.layout.widget_timer)
+            if (!loggedIn) {
+                v.setChronometer(R.id.timer_chrono, SystemClock.elapsedRealtime(), "00:00", false)
+                v.setChronometerCountDown(R.id.timer_chrono, false)
+                v.setTextViewText(R.id.timer_state, "")
+                v.setViewVisibility(R.id.timer_buttons, View.GONE)
+                v.setViewVisibility(R.id.timer_locked, View.VISIBLE)
+                v.setOnClickPendingIntent(R.id.root, WidgetUtil.open(context, "timer"))
+                appWidgetManager.updateAppWidget(id, v)
+                return@forEach
+            }
+            v.setViewVisibility(R.id.timer_buttons, View.VISIBLE)
+            v.setViewVisibility(R.id.timer_locked, View.GONE)
             if (running) {
                 v.setChronometer(R.id.timer_chrono, SystemClock.elapsedRealtime() + remaining, null, true)
                 v.setChronometerCountDown(R.id.timer_chrono, true)

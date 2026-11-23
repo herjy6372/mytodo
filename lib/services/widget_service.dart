@@ -9,6 +9,7 @@ import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import '../data/auth_repository.dart';
 import '../data/ledger_repository.dart';
 import '../data/memo_repository.dart';
 import '../data/mood_repository.dart';
@@ -97,6 +98,7 @@ class WidgetService {
     LedgerRepository.instance.addListener(schedule);
     MemoRepository.instance.addListener(schedule);
     WorldClockRepository.instance.addListener(schedule);
+    AuthRepository.instance.addListener(schedule);
 
     // 위젯을 눌러 앱이 열린 경우 해당 화면으로 이동
     void handle(Uri? uri) {
@@ -117,6 +119,8 @@ class WidgetService {
     if (!_supported) return;
     try {
       if (_isIOS) await _applyIosPendingActions();
+      // 위젯 타이머는 앱 없이 동작하므로 로그인 여부를 위젯에 알려 줌
+      await _save('logged_in', AuthRepository.instance.isLoggedIn ? '1' : '0');
       final prefs = await SharedPreferences.getInstance();
       await _publishFromPrefs(prefs);
     } catch (e) {
@@ -284,6 +288,9 @@ class WidgetService {
         await prefs.setString('todos_v1', jsonEncode(list));
       }
     } else if (uri.host == 'timer') {
+      // 로그인해야 쓸 수 있음 (위젯 화면에서도 버튼을 막지만 한 번 더 확인)
+      final loggedIn = await HomeWidget.getWidgetData<String>('logged_in');
+      if (loggedIn != '1') return;
       await NotificationService.instance.init();
       final plugin = NotificationService.instance.plugin;
       await plugin.cancel(_timerNotifId);
