@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../data/auth_repository.dart';
 import '../screens/login_screen.dart';
 import 'notification_service.dart';
+import '../widgets/keep_words.dart';
 
 class PermissionService {
   PermissionService._();
@@ -204,7 +205,7 @@ class _PermissionRow extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                description,
+                keepWords(description),
                 style: TextStyle(
                     fontSize: 12.5,
                     color: scheme.onSurfaceVariant,

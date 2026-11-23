@@ -16,9 +16,11 @@ import '../models/user_profile.dart';
 import '../models/todo.dart';
 import '../services/permission_service.dart';
 import '../widgets/home_menu_items.dart';
+import '../widgets/keep_words.dart';
 import '../widgets/rounded_menu_button.dart';
 import 'alarm_screen.dart';
 import 'calendar_screen.dart';
+import 'backup_screen.dart';
 import 'graph_screen.dart';
 import 'ledger_screen.dart';
 import 'login_screen.dart';
@@ -28,6 +30,7 @@ import 'onboarding_screen.dart';
 import 'settings_screen.dart';
 import 'support_screen.dart';
 import 'timer_screen.dart';
+import 'todo_edit_screen.dart';
 import 'todo_list_screen.dart';
 import 'world_clock_screen.dart';
 
@@ -238,6 +241,27 @@ class _HomeScreenState extends State<HomeScreen> {
     _go(const LoginScreen());
   }
 
+  /// 로그인이 필요한 메뉴를 눌렀을 때: 이유를 알려 주고 바로 로그인할 수 있게.
+  void _showLocked() {
+    final l = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text('🔒 ${l.menuLockedMessage}'),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(label: l.menuLockedAction, onPressed: _promptLogin),
+      ));
+  }
+
+  /// 첫 화면에서 바로 할 일 추가 (로그인 전이면 안내)
+  void _addTodo() {
+    if (!_auth.isLoggedIn) {
+      _showLocked();
+      return;
+    }
+    _go(const TodoEditScreen());
+  }
+
 
   /// 켜 둔 메뉴를 순서대로 3개씩 묶어 둥근 메뉴 바로 만듭니다.
   List<Widget> _menuRows(bool loggedIn) {
@@ -277,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
       label: info.label(context),
       color: info.color,
       onTap: () => _go(page),
-      onDisabledTap: _promptLogin,
+      onDisabledTap: _showLocked,
       disabled: needsLogin && !loggedIn,
     );
   }
@@ -333,6 +357,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
+      // 어디서든 한 번에 할 일 추가
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _addTodo,
+        icon: const Icon(Icons.add_rounded),
+        label: Text(l.homeAddTodo,
+            style: const TextStyle(fontWeight: FontWeight.w800)),
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -347,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -369,108 +400,27 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                // 안내 배너
-                if (isBetaOrAdmin) ...[
-                  // Beta·Admin: 베타 동기화 안내
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEDE7F6),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF9C6FE4)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Text('🧪', style: TextStyle(fontSize: 15)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            l.bannerBetaSync,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF4A148C),
-                              fontWeight: FontWeight.w600,
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                // 안내 배너 — 상황별로 한 줄만 간결하게
+                const SizedBox(height: 4),
+                if (isBetaOrAdmin)
+                  _NoticeBar(
+                    emoji: '🧪',
+                    text: l.bannerBetaSync,
+                  )
+                else if (!loggedIn)
+                  _NoticeBar(
+                    emoji: '🔐',
+                    text: l.homeGuestBannerTitle,
+                    sub: l.homeGuestBannerSub,
+                    emphasized: true,
+                    onTap: _promptLogin,
+                  )
+                else
+                  _NoticeBar(
+                    emoji: '💾',
+                    text: l.homeLocalOnlyBanner,
+                    onTap: () => _go(const BackupScreen()),
                   ),
-                ] else ...[
-                  // 비로그인 or 일반 등급: 기록 삭제 주의
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF3CD),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFFFD700)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Text('⚠️', style: TextStyle(fontSize: 15)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            l.bannerNoSync,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF856404),
-                              fontWeight: FontWeight.w600,
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 비로그인 전용: 로그인 유도 배너 (탭 시 로그인 화면 이동)
-                  if (!loggedIn) ...[
-                    const SizedBox(height: 8),
-                    InkWell(
-                      onTap: _promptLogin,
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: scheme.primaryContainer
-                              .withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                              color: scheme.primary.withValues(alpha: 0.4)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Text('🔐', style: TextStyle(fontSize: 15)),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                l.bannerLoginRequired,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: scheme.onPrimaryContainer,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              size: 18,
-                              color: scheme.onPrimaryContainer,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
                 const SizedBox(height: 8),
                 Text(
                   greeting,
@@ -501,6 +451,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _WeekScheduleSection(
                   weekTodos: weekTodos,
                   onSeeAll: loggedIn ? () => _go(const TodoListScreen()) : _promptLogin,
+                  onAdd: _addTodo,
                 ),
                 const SizedBox(height: 20),
                 // (3) 기능 메뉴 — 설정 → 홈 화면 메뉴에서 켜고 끄기·순서 변경
@@ -630,10 +581,12 @@ class _WeekScheduleSection extends StatelessWidget {
   const _WeekScheduleSection({
     required this.weekTodos,
     required this.onSeeAll,
+    required this.onAdd,
   });
 
   final List<Todo> weekTodos;
   final VoidCallback onSeeAll;
+  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -670,26 +623,44 @@ class _WeekScheduleSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         if (weekTodos.isEmpty)
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16, vertical: 22),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardTheme.color,
+          // 빈 일정 카드: 누르면 바로 할 일 추가
+          Material(
+            color: Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(22),
+            child: InkWell(
               borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: scheme.outlineVariant),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.event_available_rounded,
-                    color: scheme.onSurfaceVariant),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    l.weekScheduleEmpty,
-                    style: TextStyle(color: scheme.onSurfaceVariant),
-                  ),
+              onTap: onAdd,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 18),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: scheme.outlineVariant),
                 ),
-              ],
+                child: Row(
+                  children: [
+                    Icon(Icons.event_available_rounded,
+                        color: scheme.onSurfaceVariant),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l.weekScheduleEmpty,
+                              style: TextStyle(color: scheme.onSurface)),
+                          const SizedBox(height: 2),
+                          Text(l.weekScheduleEmptyAdd,
+                              style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: scheme.primary,
+                                  fontWeight: FontWeight.w700)),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.add_circle_rounded, color: scheme.primary),
+                  ],
+                ),
+              ),
             ),
           )
         else ...[
@@ -1015,3 +986,78 @@ class _PendingApprovalScreenState extends State<_PendingApprovalScreen> {
   }
 }
 
+/// 홈 상단 안내 한 줄. 눌러서 관련 화면(로그인·백업)으로 이동.
+class _NoticeBar extends StatelessWidget {
+  const _NoticeBar({
+    required this.emoji,
+    required this.text,
+    this.sub,
+    this.onTap,
+    this.emphasized = false,
+  });
+
+  final String emoji;
+  final String text;
+  final String? sub;
+  final VoidCallback? onTap;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final bg = emphasized
+        ? scheme.primaryContainer.withValues(alpha: 0.6)
+        : (Theme.of(context).cardTheme.color ?? scheme.surface)
+            .withValues(alpha: 0.85);
+    final fg = emphasized ? scheme.onPrimaryContainer : scheme.onSurface;
+    return Material(
+      color: bg,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+                color: emphasized
+                    ? scheme.primary.withValues(alpha: 0.35)
+                    : scheme.outlineVariant),
+          ),
+          child: Row(
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 15)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(keepWords(text),
+                        style: TextStyle(
+                            fontSize: 13,
+                            height: 1.35,
+                            fontWeight: FontWeight.w700,
+                            color: fg)),
+                    if (sub != null) ...[
+                      const SizedBox(height: 2),
+                      Text(keepWords(sub!),
+                          style: TextStyle(
+                              fontSize: 12,
+                              height: 1.35,
+                              color: fg.withValues(alpha: 0.75))),
+                    ],
+                  ],
+                ),
+              ),
+              if (onTap != null) ...[
+                const SizedBox(width: 6),
+                Icon(Icons.chevron_right_rounded, size: 20, color: fg),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

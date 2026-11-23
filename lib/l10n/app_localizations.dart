@@ -93,6 +93,13 @@ class AppLocalizations {
     'Mag-sign in para gamitin ang app.',
     'Đăng nhập để sử dụng các tính năng ứng dụng.',
   );
+  String get homeGuestBannerTitle => _t('로그인하면 모든 기능을 쓸 수 있어요', 'Sign in to use every feature', 'ログインするとすべての機能を使えます', 'Mag-sign in para magamit ang lahat ng feature', 'Đăng nhập để dùng mọi tính năng');
+  String get homeGuestBannerSub => _t('지금은 기록이 이 기기에만 저장돼요', 'For now, records are saved only on this device', '現在、記録はこの端末にのみ保存されます', 'Sa ngayon, sa device na ito lang naka-save ang mga tala', 'Hiện tại dữ liệu chỉ được lưu trên thiết bị này');
+  String get homeLocalOnlyBanner => _t('기록은 이 기기에만 저장돼요 · 백업 파일 만들기', 'Records stay on this device · Make a backup file', '記録はこの端末にのみ保存 · バックアップを作成', 'Sa device na ito lang naka-save · Gumawa ng backup', 'Dữ liệu chỉ lưu trên máy này · Tạo bản sao lưu');
+  String get menuLockedMessage => _t('로그인하면 쓸 수 있는 기능이에요', 'Sign in to use this feature', 'ログインすると使える機能です', 'Mag-sign in para magamit ito', 'Đăng nhập để dùng tính năng này');
+  String get menuLockedAction => _t('로그인', 'Sign in', 'ログイン', 'Mag-sign in', 'Đăng nhập');
+  String get homeAddTodo => _t('할 일 추가', 'Add task', 'タスク追加', 'Magdagdag', 'Thêm việc');
+  String get weekScheduleEmptyAdd => _t('눌러서 첫 할 일을 추가해 보세요', 'Tap to add your first task', 'タップして最初のタスクを追加', 'I-tap para magdagdag ng gawain', 'Chạm để thêm việc đầu tiên');
 
   // ── 설정 화면 ────────────────────────────────────────────────────────────
 
@@ -282,11 +289,11 @@ class AppLocalizations {
   String get dailyNotifOn       => _t('🔔 일일 비서 알림이 활성화되어 있어요!', '🔔 Daily assistant notifications are on!', '🔔 毎日のアシスタント通知がオンです！', '🔔 Naka-on ang daily assistant notifications!', '🔔 Thông báo trợ lý hàng ngày đang bật!');
   String get dailyNotifOff      => _t('🔕 일일 비서 알림이 비활성화 되어 있어요!', '🔕 Daily assistant notifications are off!', '🔕 毎日のアシスタント通知がオフです！', '🔕 Naka-off ang daily assistant notifications!', '🔕 Thông báo trợ lý hàng ngày đang tắt!');
   String get dailyNotifSlotSectionTitle => _t('시간대별로 선택하기', 'Choose by time slot', '時間帯ごとに選択', 'Piliin ayon sa oras', 'Chọn theo khung giờ');
-  String get dailyNotifSlotMorning      => _t('🌅 아침 알림', '🌅 Morning', '🌅 朝の通知', '🌅 Umaga', '🌅 Buổi sáng');
-  String get dailyNotifSlotLunch        => _t('🍱 점심 알림', '🍱 Lunch', '🍱 昼の通知', '🍱 Tanghali', '🍱 Buổi trưa');
-  String get dailyNotifSlotEvening      => _t('🌆 저녁 알림', '🌆 Evening', '🌆 夕方の通知', '🌆 Gabi', '🌆 Buổi tối');
-  String get dailyNotifSlotBedtime      => _t('🌙 잠자리 알림', '🌙 Bedtime', '🌙 就寝前の通知', '🌙 Oras ng Tulog', '🌙 Trước khi ngủ');
-  String get dailyNotifSlotWeekly       => _t('📊 주간 요약 알림', '📊 Weekly Summary', '📊 週間サマリー', '📊 Lingguhang Buod', '📊 Tóm tắt hàng tuần');
+  String get dailyNotifSlotMorning      => _t('아침 알림', 'Morning', '朝の通知', 'Umaga', 'Buổi sáng');
+  String get dailyNotifSlotLunch        => _t('점심 알림', 'Lunch', '昼の通知', 'Tanghali', 'Buổi trưa');
+  String get dailyNotifSlotEvening      => _t('저녁 알림', 'Evening', '夕方の通知', 'Gabi', 'Buổi tối');
+  String get dailyNotifSlotBedtime      => _t('잠자리 알림', 'Bedtime', '就寝前の通知', 'Oras ng Tulog', 'Trước khi ngủ');
+  String get dailyNotifSlotWeekly       => _t('주간 요약 알림', 'Weekly Summary', '週間サマリー', 'Lingguhang Buod', 'Tóm tắt hàng tuần');
   String dailyNotifSlotDailyTime(String time)  => _t('매일 $time', 'Daily at $time', '毎日 $time', 'Araw-araw sa $time', 'Hàng ngày lúc $time');
   String dailyNotifSlotWeeklyTime(String time) => _t('매주 일요일 $time', 'Every Sunday at $time', '毎週日曜日 $time', 'Tuwing Linggo sa $time', 'Mỗi Chủ Nhật lúc $time');
 

@@ -17,6 +17,7 @@ import '../services/notification_service.dart';
 import '../services/sync_service.dart' show SyncService, BackupMeta;
 import '../data/profile_repository.dart';
 import '../widgets/beta_badge.dart';
+import '../widgets/keep_words.dart';
 import '../widgets/user_avatar.dart';
 import 'language_settings_screen.dart';
 import 'login_screen.dart';
@@ -1041,19 +1042,21 @@ class _SettingTapRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    keepWords(title),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 2),
+                  // 단어 단위로만 줄바꿈 (한두 글자만 다음 줄로 넘어가지 않게)
                   Text(
-                    subtitle,
-                    maxLines: 2,
+                    keepWords(subtitle),
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 12.5,
+                      height: 1.35,
                       color: scheme.onSurfaceVariant,
                     ),
                   ),
