@@ -99,6 +99,15 @@ storeFile=upload-keystore.jks
 
 `.gitignore` 가 `key.properties` 와 `*.jks` 를 모두 제외하므로 git 에 올라가지 않습니다.
 
+> ⚠️ `key.properties` 가 없으면 릴리스 빌드는 **실패**합니다. (예전처럼 공개된 디버그 키로 조용히 서명하지 않음)
+> 스토어에 올리지 않는 로컬 테스트용 릴리스 빌드가 필요하면 디버그 키 서명을 명시적으로 허용하세요:
+> ```bash
+> flutter build apk --release --android-project-arg=allowDebugSigning=true
+> # 또는: cd android && ./gradlew assembleRelease -PallowDebugSigning
+> # 또는: ORG_GRADLE_PROJECT_allowDebugSigning=true flutter build apk --release
+> ```
+> 이렇게 만든 빌드는 디버그 키로 서명되어 Play Console 에 업로드할 수 없습니다.
+
 ---
 
 ## 4. AAB 빌드
@@ -224,7 +233,7 @@ build/app/outputs/bundle/release/app-release.aab
 | 증상 | 원인 / 해결 |
 |---|---|
 | `applicationId 'com.example.*' is reserved` | 1번 단계 (applicationId 변경) 필수 |
-| `key.properties 파일이 없습니다` | 3번 단계, `android/key.properties` 만들기 |
+| `릴리스 서명 키가 없습니다` | 3번 단계, `android/key.properties` 만들기 (로컬 테스트용이면 `-PallowDebugSigning`) |
 | `keystore was tampered with, or password was incorrect` | key.properties 의 비밀번호 또는 storeFile 경로 오타 |
 | `Default FirebaseApp is not initialized` | applicationId 변경 후 `flutterfire configure` 재실행 |
 | Play Console 업로드 시 `이 키로 서명되지 않았습니다` | Play 가 이미 다른 키로 알고 있는 경우. **Play 앱 서명**(권장) 활성화 후 처음 업로드한 키가 인정됨 |
