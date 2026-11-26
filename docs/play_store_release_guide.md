@@ -75,7 +75,7 @@ keytool -genkey -v \
 생성된 `upload-keystore.jks` 를 프로젝트의 `android/app/upload-keystore.jks` 로 복사하시면 관리가 편합니다.
 
 ```bash
-cp ~/upload-keystore.jks /Users/terablack/StudioProjects/mytodo/android/app/upload-keystore.jks
+cp ~/upload-keystore.jks /Users/terablack/Desktop/StudioProjects/mytodo/android/app/upload-keystore.jks
 ```
 
 ---
@@ -113,7 +113,7 @@ storeFile=upload-keystore.jks
 ## 4. AAB 빌드
 
 ```bash
-cd /Users/terablack/StudioProjects/mytodo
+cd /Users/terablack/Desktop/StudioProjects/mytodo
 flutter clean
 flutter pub get
 flutter build appbundle --release
