@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>1093442203452-b393qfctq57f16kobf920g6gt145icro.apps.googleusercontent.com</string>
+	<string>1093442203452-hc244h9s422u9kh4ij96apok200cvunn.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.1093442203452-b393qfctq57f16kobf920g6gt145icro</string>
+	<string>com.googleusercontent.apps.1093442203452-hc244h9s422u9kh4ij96apok200cvunn</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>1093442203452-j2k29nrlkmg34jqb1jgkdp11u0a7va9b.apps.googleusercontent.com</string>
+	<string>1093442203452-dugdnbs7ak4tb0m15k7ckobb4vd3o00q.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyASKfCw9WWnyzVZcR7jb2xlAEHejXRj5AU</string>
 	<key>GCM_SENDER_ID</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.mytodo</string>
+	<string>com.terablack.mytodo</string>
 	<key>PROJECT_ID</key>
 	<string>todolist-4f9ef</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1093442203452:ios:6f2909329e86293795b839</string>
+	<string>1:1093442203452:ios:de3b88d2b0b8143995b839</string>
 </dict>
 </plist>

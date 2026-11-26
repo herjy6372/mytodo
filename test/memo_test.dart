@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mytodo/models/memo.dart';
 import 'package:mytodo/models/memo_drawing.dart';

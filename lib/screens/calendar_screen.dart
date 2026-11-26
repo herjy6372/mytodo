@@ -35,6 +35,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
   bool get _isKrUser => _countryCode == 'KR';
   bool get _isJpUser => _countryCode == 'JP';
 
+  /// 나라별 달력 주말 글자색 (공휴일은 holidayTextStyle 로 따로 빨간색)
+  /// - 미국: 토·일 모두 평일과 같은 색
+  /// - 필리핀·베트남: 일요일만 빨간색, 토요일은 평일과 같은 색
+  /// - 한국·일본(국가 미설정 포함): 토요일 파란색, 일요일 빨간색
+  Color? _weekendColor(DateTime day, bool isDark) {
+    final c = _countryCode;
+    if (c == 'US') return null;
+    if (day.weekday == DateTime.sunday) {
+      return isDark ? const Color(0xFFFF6B6B) : const Color(0xFFE53935);
+    }
+    if (day.weekday == DateTime.saturday && c != 'PH' && c != 'VN') {
+      return isDark ? const Color(0xFF6EA8FF) : const Color(0xFF1E6FD9);
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +83,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final calLocale = LanguageRepository.instance.language.calendarLocale;
     final dayTodos = _eventsForDay(_selected);
     final isKr = _isKrUser;
     final isJp = _isJpUser;
@@ -96,12 +114,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: TableCalendar<Todo>(
-                locale: LanguageRepository.instance.language.calendarLocale,
+                locale: calLocale,
+                // 주말 색은 나라별로 calendarBuilders 에서 직접 칠함
+                weekendDays: const [],
                 firstDay: DateTime.utc(2020, 1, 1),
                 lastDay: DateTime.utc(2100, 12, 31),
                 focusedDay: _focused,
                 selectedDayPredicate: (d) => isSameDay(d, _selected),
                 calendarFormat: _format,
+                // 요일 줄 높이(기본 16)를 글자 크기 설정에 맞춰 늘려 큰 글씨에서 잘리지 않게 함
+                daysOfWeekHeight:
+                    16 * MediaQuery.textScalerOf(context).scale(10) / 10,
                 availableCalendarFormats: {
                   CalendarFormat.month: l.calendarFormatMonth,
                   CalendarFormat.twoWeeks: l.calendarFormatTwoWeeks,
@@ -161,8 +184,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ),
                   markersAlignment: Alignment.bottomCenter,
                   markerMargin: const EdgeInsets.only(top: 4),
-                  weekendTextStyle:
-                      const TextStyle(color: Color(0xFFFF6B81)),
                   outsideDaysVisible: false,
                   // 공휴일 스타일: 빨간색 굵은 텍스트
                   holidayTextStyle: const TextStyle(
@@ -174,6 +195,32 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 // ── 공휴일 셀 빌더 (오늘이 공휴일일 때 빨간 텍스트 유지) ──
                 calendarBuilders: CalendarBuilders<Todo>(
+                  // 요일 줄: 나라별 주말 색 (색이 없으면 기본 모양)
+                  dowBuilder: (context, day) {
+                    final c = _weekendColor(day, isDark);
+                    if (c == null) return null;
+                    return Semantics(
+                      label: DateFormat.EEEE(calLocale).format(day),
+                      excludeSemantics: true,
+                      child: Center(
+                        child: Text(
+                          DateFormat.E(calLocale).format(day),
+                          style: TextStyle(color: c),
+                        ),
+                      ),
+                    );
+                  },
+                  // 날짜 칸: 나라별 주말 색 (평일·색 없는 날은 기본 모양)
+                  defaultBuilder: (context, day, focusedDay) {
+                    final c = _weekendColor(day, isDark);
+                    if (c == null) return null;
+                    return Container(
+                      margin: const EdgeInsets.all(6),
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      child: Text('${day.day}', style: TextStyle(color: c)),
+                    );
+                  },
                   todayBuilder: (context, day, focusedDay) {
                     final isHol = (isKr && _krHolidaySvc.isHoliday(day)) ||
                         (isJp && _jpHolidaySvc.isHoliday(day));
@@ -189,7 +236,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           style: TextStyle(
                             color: isHol
                                 ? const Color(0xFFE53935)
-                                : scheme.onSurface,
+                                : (_weekendColor(day, isDark) ?? scheme.onSurface),
                             fontWeight: FontWeight.w700,
                           ),
                         ),

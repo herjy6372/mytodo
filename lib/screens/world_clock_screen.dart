@@ -226,13 +226,19 @@ class _CityTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    '$off · $dateText',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  // 큰 글씨에서 한 줄에 다 들어가지 않으면 날짜를 다음 줄로 내려
+                  // 잘리지 않고 전부 보이게 함
+                  DefaultTextStyle.merge(
                     style: TextStyle(
                       fontSize: 11.5,
                       color: scheme.onSurfaceVariant,
+                    ),
+                    child: Wrap(
+                      spacing: 8,
+                      children: [
+                        Text(off),
+                        Text(dateText),
+                      ],
                     ),
                   ),
                 ],

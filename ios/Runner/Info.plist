@@ -29,14 +29,14 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.1093442203452-b393qfctq57f16kobf920g6gt145icro</string>
+				<string>com.googleusercontent.apps.1093442203452-hc244h9s422u9kh4ij96apok200cvunn</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.example.mytodo.widget</string>
+			<string>com.terablack.mytodo.widget</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>mytodo</string>

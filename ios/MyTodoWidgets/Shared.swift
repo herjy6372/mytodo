@@ -2,7 +2,7 @@ import SwiftUI
 import WidgetKit
 
 /// 앱(Flutter WidgetService)과 위젯이 함께 쓰는 App Group.
-let appGroupId = "group.com.example.mytodo"
+let appGroupId = "group.com.terablack.mytodo"
 
 /// Flutter 쪽이 문자열로 저장한 위젯 데이터를 읽고 씁니다.
 enum Store {

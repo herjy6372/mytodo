@@ -62,7 +62,8 @@ class _GraphScreenState extends State<GraphScreen> {
           final items = all.where(
               (t) => t.dueDate.year == d.year && t.dueDate.month == d.month);
           return _Bucket(
-            label: DateFormat('y.M', 'ko_KR').format(d),
+            // 6칸에 들어가도록 연도는 두 자리로 (예: 26.11)
+            label: DateFormat('yy.M', 'ko_KR').format(d),
             done: items.where((t) => t.isDone).length,
             todo: items.where((t) => !t.isDone).length,
           );
@@ -161,14 +162,25 @@ class _GraphScreenState extends State<GraphScreen> {
                                 if (i < 0 || i >= buckets.length) {
                                   return const SizedBox.shrink();
                                 }
+                                // 큰 글씨 모드에서도 이웃 라벨과 겹치지 않도록
+                                // 한 칸 너비 안에 맞춰 필요하면 글자를 줄임
+                                final slot = meta.parentAxisSize / buckets.length;
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 6),
-                                  child: Text(
-                                    buckets[i].label,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  child: SizedBox(
+                                    // 이웃 라벨과 붙어 보이지 않도록 칸의 85%만 사용
+                                    width: slot * 0.85,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        buckets[i].label,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 );

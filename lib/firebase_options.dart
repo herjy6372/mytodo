@@ -59,13 +59,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyASKfCw9WWnyzVZcR7jb2xlAEHejXRj5AU',
-    appId: '1:1093442203452:ios:6f2909329e86293795b839',
+    appId: '1:1093442203452:ios:de3b88d2b0b8143995b839',
     messagingSenderId: '1093442203452',
     projectId: 'todolist-4f9ef',
     storageBucket: 'todolist-4f9ef.firebasestorage.app',
-    androidClientId: '1093442203452-j2k29nrlkmg34jqb1jgkdp11u0a7va9b.apps.googleusercontent.com',
-    iosClientId: '1093442203452-b393qfctq57f16kobf920g6gt145icro.apps.googleusercontent.com',
-    iosBundleId: 'com.example.mytodo',
+    androidClientId: '1093442203452-dugdnbs7ak4tb0m15k7ckobb4vd3o00q.apps.googleusercontent.com',
+    iosClientId: '1093442203452-hc244h9s422u9kh4ij96apok200cvunn.apps.googleusercontent.com',
+    iosBundleId: 'com.terablack.mytodo',
   );
 
 }

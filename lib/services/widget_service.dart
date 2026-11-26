@@ -65,7 +65,7 @@ class WidgetService {
     'WorldClockWidget',
     'WorldClockDualWidget',
   ];
-  static const appGroupId = 'group.com.example.mytodo';
+  static const appGroupId = 'group.com.terablack.mytodo';
 
   static const _timerProvider = '$_pkg.TimerWidgetProvider';
   static const _timerNotifId = 0x7A11E5;
