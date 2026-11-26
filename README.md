@@ -61,6 +61,7 @@
 
 자세한 개발 내용은 [PORTFOLIO.md](PORTFOLIO.md)에 정리되어 있습니다.
 다른 프로젝트와 함께 [포트폴리오 사이트](https://herjy6372.github.io/portfolio/)에서도 볼 수 있습니다.
+만들면서 해결한 문제(등급별 권한, R8 난독화, 홈 화면 위젯)는 [개발 블로그](https://herjy6372.github.io/blog/ko/projects/mytodo/)에 글로 정리했습니다.
 
 ## 로컬 설정
 
