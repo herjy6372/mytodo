@@ -28,7 +28,7 @@ import flutter_local_notifications
   private func installWidgetAlarmSound() {
     guard
       let group = FileManager.default.containerURL(
-        forSecurityApplicationGroupIdentifier: "group.com.example.mytodo"),
+        forSecurityApplicationGroupIdentifier: "group.com.terablack.mytodo"),
       let source = Bundle.main.url(
         forResource: "alarm", withExtension: "wav",
         subdirectory: "Frameworks/App.framework/flutter_assets/assets/sounds")

@@ -36,7 +36,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.example.mytodo.widget</string>
+			<string>com.terablack.mytodo.widget</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>mytodo</string>
