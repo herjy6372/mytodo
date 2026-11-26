@@ -11,7 +11,9 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// 릴리스 키 정보 로드 (없으면 디버그 키로 폴백)
+// 릴리스 키 정보 로드.
+// key.properties 가 없으면 릴리스 빌드는 실패합니다.
+// (디버그 키 서명이 정말 필요하면 -PallowDebugSigning 을 명시적으로 전달)
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) {
@@ -20,6 +22,8 @@ val keystoreProperties = Properties().apply {
 }
 val hasReleaseKey = keystorePropertiesFile.exists()
         && keystoreProperties["storeFile"] != null
+val allowDebugSigning = project.findProperty("allowDebugSigning")?.toString()?.lowercase() != "false"
+        && project.hasProperty("allowDebugSigning")
 
 android {
     namespace = "com.terablack.mytodo"
@@ -61,11 +65,12 @@ android {
 
     buildTypes {
         release {
-            signingConfig = if (hasReleaseKey) {
-                signingConfigs.getByName("release")
-            } else {
-                // key.properties 가 없으면 디버그 키로 폴백 (개발 편의)
-                signingConfigs.getByName("debug")
+            signingConfig = when {
+                hasReleaseKey -> signingConfigs.getByName("release")
+                // 명시적으로 요청한 경우에만 공개된 디버그 키로 서명 (로컬 테스트용, 스토어 업로드 불가)
+                allowDebugSigning -> signingConfigs.getByName("debug")
+                // 그 외에는 아래 taskGraph 검사에서 릴리스 빌드를 실패시킴
+                else -> null
             }
             // R8: 사용하지 않는 코드·리소스 제거 + Java/Kotlin 코드 난독화
             // (Dart 코드는 `flutter build appbundle --obfuscate` 로 별도 난독화)
@@ -76,6 +81,28 @@ android {
                 "proguard-rules.pro",
             )
         }
+    }
+}
+
+// 릴리스 키 없이 릴리스 빌드를 시도하면 조용히 디버그 키로 서명하지 않고 즉시 실패.
+// (설정 단계가 아닌 태스크 그래프 단계에서 검사하므로 디버그 빌드·flutter run 은 영향 없음)
+gradle.taskGraph.whenReady {
+    val buildsRelease = allTasks.any { it.project == project && it.name.contains("Release") }
+    if (buildsRelease && !hasReleaseKey && !allowDebugSigning) {
+        throw GradleException(
+            """
+            |릴리스 서명 키가 없습니다: android/key.properties 파일이 없거나 storeFile 항목이 비어 있습니다.
+            |
+            |해결 방법 (둘 중 하나):
+            |  1) android/key.properties.example 을 android/key.properties 로 복사한 뒤
+            |     storePassword / keyPassword / keyAlias / storeFile 값을 채우세요.
+            |     (docs/play_store_release_guide.md 의 3번 단계 참고)
+            |  2) 스토어에 올리지 않는 로컬 테스트용이라면 디버그 키 서명을 명시적으로 허용하세요:
+            |       flutter build apk --release --android-project-arg=allowDebugSigning=true
+            |       또는 ./gradlew assembleRelease -PallowDebugSigning
+            |     ⚠️ 디버그 키는 공개된 키이므로 이 빌드는 Play Store 에 업로드할 수 없습니다.
+            """.trimMargin()
+        )
     }
 }
 
